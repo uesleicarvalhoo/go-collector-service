@@ -1,0 +1,40 @@
+# Go File Collector
+
+<p align="center">Micro serviço para coletar arquivos de diversas fontes e envia-los para um storage</p>
+
+<h4 align="center"> 🚧  🚀 Em construção...  🚧 </h4>
+
+<p align="center">
+<img src="https://img.shields.io/static/v1?label=License&message=MIT&color=7159c1&plastic"/>
+<img src="https://img.shields.io/static/v1?label=Version&message=0.0.0&color=7159c1&plastic"/>
+</p>
+
+## Tabela de conteúdos
+
+- [Go File Collector](#go-file-collector)
+  - [Tabela de conteúdos](#tabela-de-conteúdos)
+    - [TODO's](#todos)
+    - [Licença](#licença)
+    - [Contato](#contato)
+
+### TODO's
+- [ ] Escrever os testes da aplicação
+- [ ] Configurar o envio para o topico do SNS
+- [ ] Configurar o envio para o Storage do S3
+- [ ] Ajustar o Jaeger para trabalhar com volumes/manter a persistencia
+- [ ] Configurar o Logrus para gerar os logs da aplicação
+- [ ] Criar o Collector apontando pra um FTP/SFTP
+
+### Licença
+
+Este projeto está licenciado nos termos da licença MIT, para mais detalhes consulte o arquivo LICENSE.
+
+### Contato
+
+Olá, sou Ueslei Carvalho 👋🏻 criador e mantenedor deste projeto. Caso queira entrar em contato comigo, fique a vontade para utilizar qualquer um dos canais abaixo! :)
+
+https://www.linkedin.com/in/uesleicarvalhoo/
+
+📧 uesleicdoliveira@gmail.com
+
+📷 https://www.instagram.com/uesleicarvalhoo/
