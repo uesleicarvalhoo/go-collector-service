@@ -2,15 +2,15 @@ package storage
 
 import (
 	"context"
-	"log"
+	"io"
 
-	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 type NoneStorage struct{}
 
-func (ns *NoneStorage) SendFile(ctx context.Context, file models.File) error {
-	log.Printf("File received, %+v", file)
+func (ns *NoneStorage) SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) error {
+	logrus.Infof("File received, %+v", fileKey)
 
 	return nil
 }

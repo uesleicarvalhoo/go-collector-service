@@ -1,13 +1,12 @@
 package storage
 
 import (
-	"bytes"
 	"context"
+	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
 )
 
 type S3Storage struct {
@@ -20,16 +19,16 @@ func NewS3Storage(cfg Config, region string) *S3Storage {
 		bucketName: cfg.Bucket,
 		session: session.Must(session.NewSession(&aws.Config{
 			Region:   aws.String(region),
-			Endpoint: aws.String(cfg.Uri),
+			Endpoint: aws.String(cfg.URL),
 		})),
 	}
 }
 
-func (svc *S3Storage) SendFile(ctx context.Context, file models.File) error {
+func (svc *S3Storage) SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) error {
 	_, err := s3.New(svc.session).PutObjectWithContext(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(svc.bucketName),
-		Key:    aws.String(file.Key),
-		Body:   bytes.NewReader(file.Data),
+		Key:    aws.String(fileKey),
+		Body:   reader,
 	})
 
 	return err
