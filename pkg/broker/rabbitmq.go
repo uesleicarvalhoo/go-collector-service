@@ -3,15 +3,15 @@ package broker
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
+	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
 
 type RabbitMQClient struct {
 	cfg        Config
 	connection *amqp.Connection
-	Channel    chan Event
+	channel    *amqp.Channel
 }
 
 func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
@@ -20,59 +20,48 @@ func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
 		return nil, err
 	}
 
+	channel, err := con.Channel()
+	if err != nil {
+		return nil, err
+	}
+
 	client := &RabbitMQClient{
 		cfg:        cfg,
 		connection: con,
-		Channel:    make(chan Event, 50),
+		channel:    channel,
 	}
-
-	go client.startPublish()
 
 	return client, nil
 }
 
 func (mq *RabbitMQClient) Close() {
+	mq.channel.Close()
 	mq.connection.Close()
 }
 
-func (mq *RabbitMQClient) startPublish() {
-	ch, err := mq.connection.Channel()
-	defer ch.Close()
-
-	if err != nil {
-		log.Fatal("Couldn't start to consume events,", err)
-	}
-
-	for !mq.connection.IsClosed() {
-		event := <-mq.Channel
-
-		log.Printf("Event received, %+v\n", event)
-
-		body, err := json.Marshal(event.Data)
-		if err != nil {
-			log.Printf("Couldn't decode event data: %s\n", err)
-
-			continue
-		}
-
-		err = ch.Publish(event.Topic, event.Key, false, false, amqp.Publishing{
-			Body: body,
-		})
-		if err != nil {
-			log.Println(err)
-		}
-	}
-
-	log.Println("Stopping to send messages to broker, connection was closed.")
-}
-
 func (mq *RabbitMQClient) SendEvent(event Event) error {
-	mq.Channel <- event
+	logrus.Infof("Event received, %+v\n", event)
+
+	body, err := json.Marshal(event.Data)
+	if err != nil {
+		logrus.Infof("Couldn't decode event data: %s\n", err)
+
+		return err
+	}
+
+	err = mq.channel.Publish(event.Topic, event.Key, false, false, amqp.Publishing{
+		Body: body,
+	})
+	if err != nil {
+		logrus.Infof("Failed to publish event, %s\n", err)
+
+		return err
+	}
 
 	return nil
 }
 
-func (mq *RabbitMQClient) CreateQueue(name string) error {
+func (mq *RabbitMQClient) DeclareTopic(payload CreateTopicInput) error {
 	ch, err := mq.connection.Channel()
 	if err != nil {
 		return err
@@ -80,5 +69,10 @@ func (mq *RabbitMQClient) CreateQueue(name string) error {
 
 	defer ch.Close()
 
-	return ch.ExchangeDeclare(name, "direct", true, false, false, false, amqp.Table{})
+	exchangeType, ok := payload.Attributes["type"]
+	if !ok {
+		exchangeType = "topic"
+	}
+
+	return ch.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
 }

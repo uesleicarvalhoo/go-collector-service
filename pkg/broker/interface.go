@@ -1,11 +1,13 @@
 package broker
 
 import (
+	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/schemas"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
 )
 
 type (
-	Config = config.BrokerConfig
-	Event  = models.Event
+	CreateTopicInput = schemas.CreateTopicInput
+	Config           = config.BrokerConfig
+	Event            = models.Event
 )
