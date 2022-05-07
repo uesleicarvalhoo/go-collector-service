@@ -1,7 +1,7 @@
 -include: .env
 
 GO_ENTRYPOINT=cmd/main.go
-COVERAGE_OUTPUT=coverage.output
+COVERAGE_OUTPUT=coverage.output coverage.out
 COVERAGE_HTML=coverage.html
 GO_PACKAGES=cmd internal pkg
 
