@@ -19,4 +19,5 @@ type Storage interface {
 type Collector interface {
 	// GetNextFile() (models.File, error)
 	GetFiles() ([]models.File, error)
+	RemoveFile(file models.File) error
 }

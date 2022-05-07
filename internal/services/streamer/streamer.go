@@ -21,6 +21,7 @@ func NewStreamer(broker Broker, eventTopicInput schemas.CreateTopicInput) (*Stre
 	return streamer, nil
 }
 
+// Send event to Message Broker to event topic with body {"file_key": <fileKey>} and routing-key "published".
 func (s *Streamer) NotifyPublishedFile(fileKey string, file models.File) error {
 	event := models.Event{
 		Topic: s.eventTopic,
@@ -31,6 +32,7 @@ func (s *Streamer) NotifyPublishedFile(fileKey string, file models.File) error {
 	return s.broker.SendEvent(event)
 }
 
+// Send event to Message Broker to event topic with body {"file_path": <file.FilePath>} and routing-key "invalid".
 func (s *Streamer) NotifyInvalidFile(file models.File) error {
 	event := models.Event{
 		Topic: s.eventTopic,

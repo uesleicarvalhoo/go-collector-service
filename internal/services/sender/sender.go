@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/trace"
 )
 
@@ -24,8 +24,10 @@ func NewSender(streamer Streamer, storage Storage) *Sender {
 	}
 }
 
+// Get files from collector and send file to Storage
+// if it was success, send notification to MessageBroker and delete file.
 func (s *Sender) Consume(collector Collector) {
-	logrus.Info("Start to collect files")
+	logger.Info("Start to collect files")
 
 	for {
 		files, err := collector.GetFiles()
@@ -34,36 +36,29 @@ func (s *Sender) Consume(collector Collector) {
 		}
 
 		for _, file := range files {
-			key, err := s.ProcessFile(context.Background(), file)
+			ctx := context.Background()
+
+			key, err := s.PublishFile(ctx, s.getFileKey(file), file)
 			if err == nil {
-				logrus.Infof("File published at '%s'", key)
+				logger.Infof("File published at '%s'", key)
 			} else {
-				logrus.Errorf("Error on publish file '%s': '%s'", file, err)
+				logger.Errorf("Error on publish file '%s': '%s'", file, err)
 			}
+
+			s.RemoveFile(ctx, file, collector)
 		}
 
 		time.Sleep(time.Microsecond * 100)
 	}
 }
 
-func (s *Sender) ProcessFile(ctx context.Context, file models.File) (string, error) {
-	ctx, span := trace.NewSpan(ctx, "sender.process_file")
-	defer span.End()
-
-	fileKey, err := s.PublishFile(ctx, s.getFileKey(file), file)
-	if err != nil {
-		return "", err
-	}
-
-	return fileKey, s.RemoveFile(ctx, file)
-}
-
+// Publish File at Storage and if it was success, send a message with fileKey to MessageBroker.
 func (s *Sender) PublishFile(ctx context.Context, fileKey string, file models.File) (string, error) {
 	span := trace.SpanFromContext(ctx)
 
 	reader, err := file.GetReader()
 	if err != nil {
-		logrus.Infof("Error on get file reader, %s\n", err)
+		logger.Infof("Error on get file reader, %s\n", err)
 
 		return "", err
 	}
@@ -71,7 +66,7 @@ func (s *Sender) PublishFile(ctx context.Context, fileKey string, file models.Fi
 
 	err = s.storage.SendFile(ctx, fileKey, reader)
 	if err != nil {
-		logrus.Errorf("Error on sendfile, %s\n", err)
+		logger.Errorf("Error on sendfile, %s\n", err)
 		trace.AddSpanError(span, err)
 
 		return "", err
@@ -87,7 +82,7 @@ func (s *Sender) PublishFile(ctx context.Context, fileKey string, file models.Fi
 
 	err = s.streamer.NotifyPublishedFile(fileKey, file)
 	if err != nil {
-		logrus.Errorf("Error on publish event %s\n", err)
+		logger.Errorf("Error on publish event %s\n", err)
 		trace.AddSpanError(span, err)
 
 		return "", err
@@ -96,7 +91,8 @@ func (s *Sender) PublishFile(ctx context.Context, fileKey string, file models.Fi
 	return fileKey, nil
 }
 
-func (s *Sender) RemoveFile(ctx context.Context, file models.File) error {
+// Delete file from origin.
+func (s *Sender) RemoveFile(ctx context.Context, file models.File, collector Collector) error {
 	span := trace.SpanFromContext(ctx)
 
 	data := map[string]string{
@@ -106,7 +102,7 @@ func (s *Sender) RemoveFile(ctx context.Context, file models.File) error {
 
 	trace.AddSpanEvents(span, "sender.remove_file", data)
 
-	if err := file.Delete(); err != nil {
+	if err := collector.RemoveFile(file); err != nil {
 		trace.AddSpanError(span, err)
 
 		return err
@@ -115,6 +111,7 @@ func (s *Sender) RemoveFile(ctx context.Context, file models.File) error {
 	return nil
 }
 
+// Insert a timestamp at end of file name maintaining same file extension.
 func (s *Sender) getFileKey(file models.File) string {
 	ext := filepath.Ext(file.Name)
 	baseName := strings.TrimSuffix(file.Name, ext)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"regexp"
 	"testing"
 	"time"
 
@@ -64,23 +63,6 @@ func newSutWithBroker() (*Sender, *broker.MemoryBroker) {
 	return NewSender(streamerService, storage.NewMemoryStorage()), memoryBroker
 }
 
-func TestRemoveFileCallFileDelete(t *testing.T) {
-	// Prepare
-	sut := newSut()
-	fileName := "test_remove_file_delete_from_storage.json"
-
-	// Arrange
-	file, err := createDefaultDirTempFile(fileName)
-	assert.Nil(t, err)
-	assert.FileExists(t, file.FilePath)
-
-	// Action
-	err = sut.RemoveFile(context.TODO(), file)
-	assert.Nil(t, err)
-
-	// Assert
-	assert.NoFileExists(t, file.FilePath)
-}
 
 func TestPublishFileSendFileToStorage(t *testing.T) {
 	// Prepare
@@ -128,46 +110,6 @@ func TestPublishFileSendEventToStreamer(t *testing.T) {
 	sendedEvent := brokerEvents[len(brokerEvents)-1]
 
 	assert.Equal(t, sendedEvent, expectedEvent)
-}
-
-func TestProcessFilePublishFileToStorage(t *testing.T) {
-	// Prepare
-	sut := newSut()
-	memoryStorage := sut.storage.(*storage.MemoryStorage)
-
-	// Arrange
-	file, err := createDefaultDirTempFile("test_process_file_publish_file_to_storage.json")
-	assert.Nil(t, err)
-
-	_, err = file.GetReader()
-	assert.Nil(t, err)
-
-	// Action
-	fileKey, err := sut.ProcessFile(context.TODO(), file)
-	assert.Nil(t, err)
-
-	// Arrange
-	filepath.Base(file.Name)
-	assert.Regexp(t, regexp.MustCompile("test_process_file_publish_file_to_storage"), fileKey)
-	assert.True(t, memoryStorage.FileExists(fileKey))
-}
-
-func TestProcessFileDeleteFile(t *testing.T) {
-	// Prepare
-	sut := newSut()
-	fileName := "test_process_file_delete_file.json"
-
-	// Arrange
-	file, err := createDefaultDirTempFile(fileName)
-	assert.Nil(t, err)
-	assert.FileExists(t, file.FilePath)
-
-	// Action
-	_, err = sut.ProcessFile(context.TODO(), file)
-	assert.Nil(t, err)
-
-	// Assert
-	assert.NoFileExists(t, file.FilePath)
 }
 
 func TestConsumeSendAllFilesToStorage(t *testing.T) {

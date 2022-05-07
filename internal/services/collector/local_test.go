@@ -79,52 +79,23 @@ func TestGetFiles(t *testing.T) {
 	assert.Falsef(t, ignoredFileIsCollected, "File '%s' is collected", ignoredFile.Name)
 }
 
-func TestGetFilesFileDelete(t *testing.T) {
-	// Prepare
-	sut := newSut("*.json")
 
-	// Arrange
-	_, err := createTempFile("test_file_delete.json")
-	assert.Nil(t, err)
-
-	collectedFiles, err := sut.GetFiles()
-	assert.Nil(t, err)
-
-	collectedFile := collectedFiles[0]
-
-	assert.FileExists(t, collectedFile.FilePath)
-
-	// Action
-	collectedFile.Delete()
-
-	// Assert
-	assert.NoFileExists(t, collectedFile.FilePath)
-}
-
-func TestFileDeleteRemoveFileWithSuccess(t *testing.T) {
-	// Arrange
-	file, err := createTempFile("removefilewithsuccess.json")
-	assert.Nil(t, err)
-
-	// Action
-	err = file.Delete()
-
-	// Assert
-	assert.Nil(t, err)
-}
-
-func TestFileDeleteRemoveWithInvalidFilePathReturnError(t *testing.T) {
+func TestRemoveFileDeleteFile(t *testing.T) {
 	// Prepare
 	sut := newSut()
+	fileName := "test_remove_file_delete_from_storage.json"
 
 	// Arrange
-	file := sut.newFileModel("./invalidpath.json")
+	file, err := createTempFile(fileName)
+	assert.Nil(t, err)
+	assert.FileExists(t, file.FilePath)
 
 	// Action
-	err := file.Delete()
+	err = sut.RemoveFile(file)
+	assert.Nil(t, err)
 
 	// Assert
-	assert.NotNil(t, err)
+	assert.NoFileExists(t, file.FilePath)
 }
 
 func TestFileGetReaderWithInvalidFilePathReturnError(t *testing.T) {
