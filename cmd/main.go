@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
-	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/collector"
+	"github.com/sirupsen/logrus"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/streamer"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/services"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/streamer"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/trace"
@@ -17,6 +17,8 @@ import (
 func main() {
 	ctx := context.Background()
 	env := config.LoadAppSettingsFromEnv()
+
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	// Tracer
 	provider, err := trace.NewProvider(trace.ProviderConfig{
@@ -27,19 +29,20 @@ func main() {
 		Disabled:       false,
 	})
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	defer provider.Close(ctx)
 
 	// Broker
-	eventBroker, err := broker.NewRabbitMqClient(env.BrokerConfig)
+	brokerService, err := broker.NewRabbitMqClient(env.BrokerConfig)
+	defer brokerService.Close()
+
 	if err != nil {
 		panic(err)
 	}
-	defer eventBroker.Close()
 
 	// Streamer
-	streamer, err := streamer.NewStreamer(eventBroker)
+	streamerService, err := streamer.NewStreamer(brokerService, broker.CreateTopicInput{Name: env.BrokerConfig.EventTopic})
 	if err != nil {
 		panic(err)
 	}
@@ -48,10 +51,13 @@ func main() {
 	storage := storage.NewS3Storage(env.StorageConfig, env.AwsRegion)
 
 	// Collector
-	fileCollector := collector.NewLocalCollector("/home/uescarvalho/go-collector-service/tmp/*.json")
+	fileCollector, err := collector.NewLocalCollector("/home/uescarvalho/go-collector-service/data/*.json")
+	if err != nil {
+		panic(err)
+	}
 
 	// Run service
-	sender := services.NewSender(streamer, storage, fileCollector)
+	senderService := sender.NewSender(streamerService, storage)
 
-	sender.Run()
+	senderService.Consume(fileCollector)
 }
