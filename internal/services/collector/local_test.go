@@ -79,7 +79,6 @@ func TestGetFiles(t *testing.T) {
 	assert.Falsef(t, ignoredFileIsCollected, "File '%s' is collected", ignoredFile.Name)
 }
 
-
 func TestRemoveFileDeleteFile(t *testing.T) {
 	// Prepare
 	sut := newSut()

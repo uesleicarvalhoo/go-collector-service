@@ -63,7 +63,6 @@ func newSutWithBroker() (*Sender, *broker.MemoryBroker) {
 	return NewSender(streamerService, storage.NewMemoryStorage()), memoryBroker
 }
 
-
 func TestPublishFileSendFileToStorage(t *testing.T) {
 	// Prepare
 	sut := newSut()

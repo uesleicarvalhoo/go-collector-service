@@ -45,7 +45,7 @@ func (s *Sender) Consume(collector Collector) {
 				logger.Errorf("Error on publish file '%s': '%s'", file, err)
 			}
 
-			s.RemoveFile(ctx, file, collector)
+			_ = s.RemoveFile(ctx, file, collector)
 		}
 
 		time.Sleep(time.Microsecond * 100)
