@@ -1,9 +1,9 @@
 package config
 
 import (
-	"log"
-
+	"github.com/joho/godotenv"
 	"github.com/netflix/go-env"
+	"github.com/sirupsen/logrus"
 )
 
 type AppSettings struct {
@@ -20,9 +20,14 @@ type AppSettings struct {
 }
 
 func LoadAppSettingsFromEnv() (cfg AppSettings) {
-	_, err := env.UnmarshalFromEnviron(&cfg)
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Info("Couldn't be load env from .env file")
+	}
+
+	_, err = env.UnmarshalFromEnviron(&cfg)
+	if err != nil {
+		logrus.Fatal(err)
 
 		return
 	}
