@@ -46,3 +46,4 @@ go.work
 coverage.html
 coverage.output
 data/
+tmp/
