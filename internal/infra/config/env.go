@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/joho/godotenv"
 	"github.com/netflix/go-env"
-	"github.com/sirupsen/logrus"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type AppSettings struct {
@@ -15,6 +15,8 @@ type AppSettings struct {
 	TraceServiceName string `env:"TRACE_SERVICE_NAME"`
 	TraceURL         string `env:"TRACE_URL,default=http://localhost:14268"`
 
+	CollectFilesFolder string `env:"COLLECT_FILES_FOLDER,default=/files"`
+
 	BrokerConfig  BrokerConfig
 	StorageConfig StorageConfig
 }
@@ -22,12 +24,12 @@ type AppSettings struct {
 func LoadAppSettingsFromEnv() (cfg AppSettings) {
 	err := godotenv.Load()
 	if err != nil {
-		logrus.Info("Couldn't be load env from .env file")
+		logger.Info("Couldn't be load env from .env file")
 	}
 
 	_, err = env.UnmarshalFromEnviron(&cfg)
 	if err != nil {
-		logrus.Fatal(err)
+		logger.Fatal(err)
 
 		return
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
-	"github.com/sirupsen/logrus"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type SQSClient struct {
@@ -74,7 +74,7 @@ func (svc *SQSClient) DeclareTopic(payload CreateTopicInput) error {
 func (svc *SQSClient) getEventBody(data any) (*string, error) {
 	eventData, err := json.Marshal(data)
 	if err != nil {
-		logrus.Errorf("Couldn't decode event data: %s\n", err)
+		logger.Errorf("Couldn't decode event data: %s\n", err)
 
 		return nil, err
 	}

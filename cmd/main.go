@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/streamer"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/trace"
 )
 
 func main() {
+	logger.Initialize()
+
 	ctx := context.Background()
 	env := config.LoadAppSettingsFromEnv()
-
-	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	// Tracer
 	provider, err := trace.NewProvider(trace.ProviderConfig{
@@ -29,7 +29,7 @@ func main() {
 		Disabled:       false,
 	})
 	if err != nil {
-		logrus.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer provider.Close(ctx)
 
@@ -51,7 +51,7 @@ func main() {
 	storage := storage.NewS3Storage(env.StorageConfig, env.AwsRegion)
 
 	// Collector
-	fileCollector, err := collector.NewLocalCollector("/home/uescarvalho/go-collector-service/data/*.json")
+	fileCollector, err := collector.NewLocalCollector(env.CollectFilesFolder)
 	if err != nil {
 		panic(err)
 	}

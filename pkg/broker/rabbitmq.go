@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type RabbitMQClient struct {
@@ -40,11 +40,11 @@ func (mq *RabbitMQClient) Close() {
 }
 
 func (mq *RabbitMQClient) SendEvent(event Event) error {
-	logrus.Infof("Event received, %+v\n", event)
+	logger.Infof("Event received, %+v\n", event)
 
 	body, err := json.Marshal(event.Data)
 	if err != nil {
-		logrus.Infof("Couldn't decode event data: %s\n", err)
+		logger.Infof("Couldn't decode event data: %s\n", err)
 
 		return err
 	}
@@ -53,7 +53,7 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 		Body: body,
 	})
 	if err != nil {
-		logrus.Infof("Failed to publish event, %s\n", err)
+		logger.Infof("Failed to publish event, %s\n", err)
 
 		return err
 	}

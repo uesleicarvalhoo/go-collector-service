@@ -1,7 +1,7 @@
 package broker
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type NoneBroker struct {
@@ -15,11 +15,11 @@ func NewNoneBroker() *NoneBroker {
 }
 
 func (n *NoneBroker) Close() {
-	logrus.Info("Stop to consume")
+	logger.Info("Stop to consume")
 }
 
 func (n *NoneBroker) startPublish() {
-	logrus.Info("Start to Consume")
+	logger.Info("Start to Consume")
 }
 
 func (n *NoneBroker) SendEvent(event Event) error {
