@@ -18,12 +18,9 @@
     - [Contato](#contato)
 
 ### TODO's
-- [ ] Escrever os testes da aplicação
-- [ ] Configurar o envio para o topico do SNS
-- [ ] Configurar o envio para o Storage do S3
-- [ ] Ajustar o Jaeger para trabalhar com volumes/manter a persistencia
-- [ ] Configurar o Logrus para gerar os logs da aplicação
+
 - [ ] Criar o Collector apontando pra um FTP/SFTP
+- [ ] Documentar o código
 
 ### Licença
 
