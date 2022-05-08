@@ -36,9 +36,12 @@ func (s *Sender) Consume(collector Collector) {
 		}
 
 		for _, file := range files {
-			ctx := context.Background()
+			fileKey := s.getFileKey(file)
 
-			key, err := s.PublishFile(ctx, s.getFileKey(file), file)
+			ctx, span := trace.NewSpan(context.Background(), "sender.process_file")
+			trace.AddSpanTags(span, map[string]string{"fileKey": fileKey})
+
+			key, err := s.PublishFile(ctx, fileKey, file)
 			if err == nil {
 				logger.Infof("File published at '%s'", key)
 			} else {
@@ -46,6 +49,8 @@ func (s *Sender) Consume(collector Collector) {
 			}
 
 			_ = s.RemoveFile(ctx, file, collector)
+
+			span.End()
 		}
 
 		time.Sleep(time.Microsecond * 100)
@@ -95,12 +100,13 @@ func (s *Sender) PublishFile(ctx context.Context, fileKey string, file models.Fi
 func (s *Sender) RemoveFile(ctx context.Context, file models.File, collector Collector) error {
 	span := trace.SpanFromContext(ctx)
 
-	data := map[string]string{
-		"filename": file.Name,
-		"filepath": file.FilePath,
-	}
-
-	trace.AddSpanEvents(span, "sender.remove_file", data)
+	trace.AddSpanEvents(
+		span,
+		"sender.remove_file",
+		map[string]string{
+			"filename": file.Name,
+			"filepath": file.FilePath,
+		})
 
 	if err := collector.RemoveFile(file); err != nil {
 		trace.AddSpanError(span, err)
