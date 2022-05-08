@@ -1,7 +1,7 @@
 -include: .env
 
 GO_ENTRYPOINT=cmd/main.go
-COVERAGE_OUTPUT=coverage.output coverage.out
+COVERAGE_OUTPUT=coverage.output
 COVERAGE_HTML=coverage.html
 GO_PACKAGES=cmd internal pkg
 
@@ -50,7 +50,6 @@ coverage: ## Run tests, make report and open into browser
 ## @ Clean
 .PHONY: clean clean_coverage_cache
 clean_coverage_cache: ## Remove coverage cache files
-	@rm -rf $(COVERAGE_OUTPUT)
-	@rm -rf $(COVERAGE_HTML)
+	@rm -rf $(COVERAGE_OUTPUT)  coverage.out $(COVERAGE_HTML)
 
 clean: clean_coverage_cache ## Remove Cache files
