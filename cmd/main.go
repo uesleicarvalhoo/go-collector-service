@@ -51,7 +51,7 @@ func main() {
 	storage := storage.NewS3Storage(env.StorageConfig, env.AwsRegion)
 
 	// Collector
-	fileCollector, err := collector.NewLocalCollector(env.CollectFilesFolder)
+	fileCollector, err := collector.NewSFTPCollector(env.CollectorConfig)
 	if err != nil {
 		panic(err)
 	}

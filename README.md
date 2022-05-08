@@ -19,8 +19,8 @@
 
 ### TODO's
 
-- [ ] Criar o Collector apontando pra um FTP/SFTP
-- [ ] Documentar o código
+- [ ] Ajustar o Draw.io com os fluxos da aplicação
+- [ ] Documentar o que o serviço vai fazer no README.md
 
 ### Licença
 

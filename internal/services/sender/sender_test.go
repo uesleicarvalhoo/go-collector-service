@@ -35,7 +35,7 @@ func createDefaultDirTempFile(fileName string) (models.File, error) {
 func createTempFile(dir, fileName string) (models.File, error) {
 	fp := filepath.Join(dir, fileName)
 
-	lc, err := collector.NewLocalCollector()
+	lc, err := collector.NewLocalCollector(collector.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -120,7 +120,8 @@ func TestConsumeSendAllFilesToStorage(t *testing.T) {
 		panic(err)
 	}
 
-	collectorService, err := collector.NewLocalCollector(fmt.Sprintf("%s/*", folder))
+	cfg := collector.Config{MatchPattern: fmt.Sprintf("%s/*", folder)}
+	collectorService, err := collector.NewLocalCollector(cfg)
 	assert.Nil(t, err)
 
 	memoryStorage := sut.storage.(*storage.MemoryStorage)

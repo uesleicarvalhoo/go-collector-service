@@ -28,6 +28,7 @@ func NewSQSClient(cfg Config, region string) (*SQSClient, error) {
 	return client, nil
 }
 
+// Don't do anything, just keep compatibility.
 func (svc *SQSClient) Close() {
 }
 
