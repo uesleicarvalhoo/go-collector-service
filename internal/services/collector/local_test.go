@@ -21,13 +21,8 @@ func init() {
 	tmpDir = folder
 }
 
-func newSut(masks ...string) LocalCollector {
-	patterns := []string{}
-	for _, mask := range masks {
-		patterns = append(patterns, filepath.Join(tmpDir, mask))
-	}
-
-	collector, err := NewLocalCollector(patterns...)
+func newSut(pattern string) LocalCollector {
+	collector, err := NewLocalCollector(Config{MatchPattern: filepath.Join(tmpDir, pattern)})
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +31,7 @@ func newSut(masks ...string) LocalCollector {
 }
 
 func createTempFile(fileName string) (models.File, error) {
-	lc := newSut()
+	lc := newSut("")
 	fp := filepath.Join(tmpDir, fileName)
 
 	err := ioutil.WriteFile(fp, []byte{}, fs.ModeAppend)
@@ -81,7 +76,7 @@ func TestGetFiles(t *testing.T) {
 
 func TestRemoveFileDeleteFile(t *testing.T) {
 	// Prepare
-	sut := newSut()
+	sut := newSut("")
 	fileName := "test_remove_file_delete_from_storage.json"
 
 	// Arrange
@@ -110,7 +105,7 @@ func TestFileGetReaderWithInvalidFilePathReturnError(t *testing.T) {
 
 func TestFileGetReaderReturnValidContentReader(t *testing.T) {
 	// Prepare
-	sut := newSut()
+	sut := newSut("")
 	fileData := "testing!"
 	fp := filepath.Join(tmpDir, "test_file_get_reader_return_valid_content_reader.json")
 

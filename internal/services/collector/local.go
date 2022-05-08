@@ -10,33 +10,28 @@ import (
 )
 
 type LocalCollector struct {
-	patterns []string
+	config Config
 }
 
 // Use filepath.Glob to check all patterns, if any is invalid return error.
-func NewLocalCollector(patterns ...string) (*LocalCollector, error) {
-	for _, pattern := range patterns {
-		if _, err := filepath.Glob(pattern); err != nil {
-			return nil, err
-		}
+func NewLocalCollector(cfg Config) (*LocalCollector, error) {
+	if _, err := filepath.Glob(cfg.MatchPattern); err != nil {
+		return nil, err
 	}
 
-	return &LocalCollector{patterns: patterns}, nil
+	return &LocalCollector{config: cfg}, nil
 }
 
 func (lc *LocalCollector) GetFiles() (fileList []models.File, err error) {
-	for _, mask := range lc.patterns {
-		collectedFiles, _ := filepath.Glob(mask)
+	collectedFiles, _ := filepath.Glob(lc.config.MatchPattern)
+	logger.Debugf("[LocalCollector] Pattern '%s' find %d files\n", lc.config.MatchPattern, len(collectedFiles))
 
-		logger.Debugf("[LocalCollector] Using '%s' find %d files", mask, len(collectedFiles))
-
-		for _, fp := range collectedFiles {
-			fileName := filepath.Base(fp)
-			fileList = append(
-				fileList,
-				models.NewFile(fileName, fp, lc),
-			)
-		}
+	for _, fp := range collectedFiles {
+		fileName := filepath.Base(fp)
+		fileList = append(
+			fileList,
+			models.NewFile(fileName, fp, lc),
+		)
 	}
 
 	return fileList, nil
