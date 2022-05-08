@@ -84,7 +84,7 @@ func (sc *SFTPCollector) connect() error {
 	if sc.config.PrivateKey != "" {
 		signer, err := ssh.ParsePrivateKey([]byte(sc.config.PrivateKey))
 		if err != nil {
-			return errors.Wrapf(err, "ssh parse private key: %w", ErrConnectionFailed)
+			return errors.Wrapf(err, "ssh parse private key: %s", ErrConnectionFailed)
 		}
 
 		auth = ssh.PublicKeys(signer)
@@ -98,12 +98,12 @@ func (sc *SFTPCollector) connect() error {
 
 	sshclient, err := ssh.Dial("tcp", sc.config.Server, cfg)
 	if err != nil {
-		return errors.Wrapf(err, "ssh dial: %w", ErrConnectionFailed)
+		return errors.Wrapf(err, "ssh dial: %s", ErrConnectionFailed)
 	}
 
 	SFTPCollector, err := sftp.NewClient(sshclient)
 	if err != nil {
-		return errors.Wrapf(err, "sftp new client: %w", ErrConnectionFailed)
+		return errors.Wrapf(err, "sftp new client: %s", ErrConnectionFailed)
 	}
 
 	sc.sshClient = sshclient
