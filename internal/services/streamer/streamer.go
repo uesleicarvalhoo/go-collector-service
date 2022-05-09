@@ -1,6 +1,8 @@
 package streamer
 
 import (
+	"context"
+
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/schemas"
 )
@@ -22,22 +24,20 @@ func NewStreamer(broker Broker, eventTopicInput schemas.CreateTopicInput) (*Stre
 }
 
 // Send event to Message Broker to event topic with body {"file_key": <fileKey>} and routing-key "published".
-func (s *Streamer) NotifyPublishedFile(fileKey string, file models.File) error {
-	event := models.Event{
-		Topic: s.eventTopic,
-		Key:   "published",
-		Data:  map[string]string{"file_key": fileKey},
+func (s *Streamer) NotifyPublishedFile(ctx context.Context, fileKey string, file models.File) error {
+	event, err := models.NewEvent(s.eventTopic, "published", map[string]string{"file_key": fileKey})
+	if err != nil {
+		return err
 	}
 
 	return s.broker.SendEvent(event)
 }
 
 // Send event to Message Broker to event topic with body {"file_path": <file.FilePath>} and routing-key "invalid".
-func (s *Streamer) NotifyInvalidFile(file models.File) error {
-	event := models.Event{
-		Topic: s.eventTopic,
-		Key:   "invalid",
-		Data:  map[string]string{"file_path": file.FilePath},
+func (s *Streamer) NotifyInvalidFile(ctx context.Context, file models.File) error {
+	event, err := models.NewEvent(s.eventTopic, "invalid", map[string]string{"file_path": file.FilePath})
+	if err != nil {
+		return err
 	}
 
 	return s.broker.SendEvent(event)
