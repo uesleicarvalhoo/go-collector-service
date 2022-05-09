@@ -2,7 +2,6 @@ package sender
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -10,14 +9,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/streamer"
 
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"
 )
 
-var tmpDir string
+var (
+	tmpDir       string
+	memoryBroker *broker.MemoryBroker
+)
 
 func init() {
 	folder, err := ioutil.TempDir("", "*")
@@ -35,32 +37,29 @@ func createDefaultDirTempFile(fileName string) (models.File, error) {
 func createTempFile(dir, fileName string) (models.File, error) {
 	fp := filepath.Join(dir, fileName)
 
-	lc, err := collector.NewLocalCollector(collector.Config{})
+	err := ioutil.WriteFile(fp, []byte{}, 0o644)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile(fp, []byte{}, 0o644)
-	if err != nil {
-		panic(err)
-	}
-
-	return models.NewFile(filepath.Base(fp), fp, lc), nil
+	return models.NewFile(fileName, fp, fileName)
 }
 
 func newSut() *Sender {
-	sut, _ := newSutWithBroker()
-	return sut
-}
-
-func newSutWithBroker() (*Sender, *broker.MemoryBroker) {
-	memoryBroker := broker.NewMemoryBroker()
-	streamerService, err := streamer.NewStreamer(memoryBroker, broker.CreateTopicInput{Name: "collector.files"})
+	brokerService := broker.NewMemoryBroker()
+	streamerService, err := streamer.NewStreamer(brokerService, broker.CreateTopicInput{Name: "collector.files"})
 	if err != nil {
 		panic(err)
 	}
 
-	return NewSender(streamerService, storage.NewMemoryStorage()), memoryBroker
+	fs, err := fileserver.NewLocalFileServer(fileserver.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	memoryBroker = brokerService
+
+	return NewSender(streamerService, storage.NewMemoryStorage(), fs)
 }
 
 func TestPublishFileSendFileToStorage(t *testing.T) {
@@ -72,34 +71,30 @@ func TestPublishFileSendFileToStorage(t *testing.T) {
 	file, err := createDefaultDirTempFile("test_publish_file_send_file_to_storage.json")
 	assert.Nil(t, err)
 
-	fileKey := file.Name
-
 	// Action
-	_, err = sut.PublishFile(context.TODO(), fileKey, file)
+	_, err = sut.PublishFile(context.TODO(), file)
 	assert.Nil(t, err)
 
 	// Arrange
-	assert.True(t, memoryStorage.FileExists(fileKey))
+	assert.True(t, memoryStorage.FileExists(file.Key))
 }
 
 func TestPublishFileSendEventToStreamer(t *testing.T) {
 	// Prepare
-	sut, memoryBroker := newSutWithBroker()
+	sut := newSut()
 
 	// Arrange
 	file, err := createDefaultDirTempFile("test_publish_file_send_file_to_storage.json")
 	assert.Nil(t, err)
 
-	fileKey := file.Name
-
 	expectedEvent := models.Event{
 		Topic: "collector.files",
 		Key:   "published",
-		Data:  map[string]string{"file_key": fileKey},
+		Data:  map[string]string{"file_key": file.Key},
 	}
 
 	// Action
-	_, err = sut.PublishFile(context.TODO(), fileKey, file)
+	_, err = sut.PublishFile(context.TODO(), file)
 	assert.Nil(t, err)
 
 	// Assert
@@ -120,19 +115,21 @@ func TestConsumeSendAllFilesToStorage(t *testing.T) {
 		panic(err)
 	}
 
-	cfg := collector.Config{MatchPattern: fmt.Sprintf("%s/*", folder)}
-	collectorService, err := collector.NewLocalCollector(cfg)
-	assert.Nil(t, err)
-
 	memoryStorage := sut.storage.(*storage.MemoryStorage)
-
 	assert.Empty(t, memoryStorage.GetAllFiles())
 
-	createTempFile(folder, "test_file_1.json")
-	createTempFile(folder, "test_file_2.json")
+	testFile1, err := createTempFile(folder, "test_file_1.json")
+	assert.Nil(t, err)
+	assert.FileExists(t, testFile1.FilePath)
+
+	testFile2, err := createTempFile(folder, "test_file_2.json")
+	assert.Nil(t, err)
+	assert.FileExists(t, testFile2.FilePath)
 
 	// Arrange
-	go sut.Consume(collectorService)
+	pattern := filepath.Join(folder, "*.json")
+
+	go sut.Consume(pattern)
 	time.Sleep(time.Second * 1)
 
 	// Assert

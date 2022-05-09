@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/streamer"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/trace"
@@ -42,7 +42,9 @@ func main() {
 	}
 
 	// Streamer
-	streamerService, err := streamer.NewStreamer(brokerService, broker.CreateTopicInput{Name: env.BrokerConfig.EventTopic})
+	topic := broker.CreateTopicInput{Name: env.BrokerConfig.EventTopic}
+
+	streamerService, err := streamer.NewStreamer(brokerService, topic)
 	if err != nil {
 		panic(err)
 	}
@@ -50,14 +52,14 @@ func main() {
 	// Storage
 	storage := storage.NewS3Storage(env.StorageConfig, env.AwsRegion)
 
-	// Collector
-	fileCollector, err := collector.NewSFTPCollector(env.CollectorConfig)
+	// FileSerrver
+	fileServer, err := fileserver.NewSFTP(env.FileServerConfig)
 	if err != nil {
 		panic(err)
 	}
 
 	// Run service
-	senderService := sender.NewSender(streamerService, storage)
+	senderService := sender.NewSender(streamerService, storage, fileServer)
 
-	senderService.Consume(fileCollector)
+	senderService.Consume(env.MatchPattern)
 }

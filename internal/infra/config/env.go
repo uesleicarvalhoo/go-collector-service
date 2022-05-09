@@ -15,9 +15,11 @@ type AppSettings struct {
 	TraceServiceName string `env:"TRACE_SERVICE_NAME"`
 	TraceURL         string `env:"TRACE_URL,default=http://localhost:14268"`
 
-	BrokerConfig    BrokerConfig
-	StorageConfig   StorageConfig
-	CollectorConfig CollectorConfig
+	MatchPattern string `env:"SENDER_MATCH_PATTERN,default=/files/*"`
+
+	BrokerConfig     BrokerConfig
+	StorageConfig    StorageConfig
+	FileServerConfig FileServerConfig
 }
 
 func LoadAppSettingsFromEnv() (cfg AppSettings) {

@@ -8,16 +8,16 @@ import (
 )
 
 type Streamer interface {
-	NotifyPublishedFile(fileKey string, file models.File) error
-	NotifyInvalidFile(file models.File) error
+	NotifyPublishedFile(ctx context.Context, fileKey string, file models.File) error
+	NotifyInvalidFile(ctx context.Context, file models.File) error
 }
 
 type Storage interface {
 	SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) (err error)
 }
 
-type Collector interface {
-	// GetNextFile() (models.File, error)
-	GetFiles() ([]models.File, error)
-	RemoveFile(file models.File) error
+type FileServer interface {
+	Glob(ctx context.Context, pattern string) ([]string, error)
+	Open(ctx context.Context, filePath string) (io.ReadSeekCloser, error)
+	Remove(ctx context.Context, filePath string) error
 }
