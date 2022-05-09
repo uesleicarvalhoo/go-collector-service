@@ -1,27 +1,48 @@
 package models
 
 import (
-	"io"
+	"strings"
 )
 
 type File struct {
-	Name     string
-	FilePath string
-	manager  FileManager
+	Name       string
+	FilePath   string
+	FileServer string
+	Key        string
 }
 
-type FileManager interface {
-	GetFileReader(filePath string) (io.ReadSeekCloser, error)
-}
-
-func (f *File) GetReader() (io.ReadSeekCloser, error) {
-	return f.manager.GetFileReader(f.FilePath)
-}
-
-func NewFile(name, filePath string, manager FileManager) File {
-	return File{
-		Name:     name,
+func NewFile(fileName, filePath string, fileKey string) (File, error) {
+	file := File{
+		Name:     fileName,
 		FilePath: filePath,
-		manager:  manager,
+		Key:      fileKey,
 	}
+
+	if err := file.validate(); err != nil {
+		return File{}, err
+	}
+
+	return file, nil
+}
+
+func (f *File) validate() error {
+	validator := newValidator()
+
+	if strings.TrimSpace(f.Name) == "" {
+		validator.addError(ValidationErrorProps{Context: "file", Message: "fileName should be informed"})
+	}
+
+	if strings.TrimSpace(f.FilePath) == "" {
+		validator.addError(ValidationErrorProps{Context: "file", Message: "filePath should be informed"})
+	}
+
+	if strings.TrimSpace(f.Key) == "" {
+		validator.addError(ValidationErrorProps{Context: "file", Message: "fileKey should be informed"})
+	}
+
+	if validator.hasErrors() {
+		return validator.GetError()
+	}
+
+	return nil
 }
