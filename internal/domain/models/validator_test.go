@@ -57,5 +57,4 @@ func TestGetErrorAgroupErrorMessagesByContext(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, expectedErrMessage, err.Error())
-
 }
