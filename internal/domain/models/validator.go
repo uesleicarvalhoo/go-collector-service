@@ -12,7 +12,6 @@ type ValidationErrorProps struct {
 
 type ValidationError struct {
 	Message string
-	error
 }
 
 func (e ValidationError) Error() string {

@@ -2,7 +2,7 @@ package broker
 
 import (
 	"encoding/json"
-	"fmt"
+	"net"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -16,7 +16,7 @@ type SQSClient struct {
 }
 
 func NewSQSClient(cfg Config, region string) (*SQSClient, error) {
-	uri := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+	uri := net.JoinHostPort(cfg.Host, cfg.Port)
 	client := &SQSClient{
 		Channel: make(chan Event, 50),
 		session: session.Must(session.NewSession(&aws.Config{
