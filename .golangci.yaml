@@ -26,13 +26,9 @@ linters:
   - wastedassign
   - unused
   # Only Disabled
-  - varnamelen
   - ireturn
-  - tagliatelle
   - exhaustivestruct
-  - makezero  # TODO: Avaliar alternativas
-  - wrapcheck  # Checar o que significa
-  - goerr113  # Checar
+  - wrapcheck
 
 linters-settings:
   lll:

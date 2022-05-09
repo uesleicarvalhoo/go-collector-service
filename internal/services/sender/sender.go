@@ -119,9 +119,11 @@ func (s *Sender) RemoveFile(ctx context.Context, file models.File) error {
 	return nil
 }
 
-func (s *Sender) getFiles(ctx context.Context, pattern string) (files []models.File, err error) {
+func (s *Sender) getFiles(ctx context.Context, pattern string) ([]models.File, error) {
 	_, span := trace.NewSpan(ctx, "list-files")
 	defer span.End()
+
+	files := make([]models.File, 0)
 
 	collectedFiles, err := s.fileServer.Glob(ctx, pattern)
 	if err != nil {
@@ -144,12 +146,12 @@ func (s *Sender) getFiles(ctx context.Context, pattern string) (files []models.F
 }
 
 // Insert a timestamp at end of file name maintaining same file extension.
-func (s *Sender) createFileModel(fp string) (models.File, error) {
-	fileName := filepath.Base(fp)
+func (s *Sender) createFileModel(filePath string) (models.File, error) {
+	fileName := filepath.Base(filePath)
 	ext := filepath.Ext(fileName)
 	baseName := strings.TrimSuffix(fileName, ext)
 
 	key := fmt.Sprintf("%s-%s%s", baseName, time.Now().Format(time.RFC3339Nano), ext)
 
-	return models.NewFile(fileName, fp, key)
+	return models.NewFile(fileName, filePath, key)
 }

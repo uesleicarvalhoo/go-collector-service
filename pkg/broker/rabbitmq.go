@@ -62,17 +62,17 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 }
 
 func (mq *RabbitMQClient) DeclareTopic(payload CreateTopicInput) error {
-	ch, err := mq.connection.Channel()
+	channel, err := mq.connection.Channel()
 	if err != nil {
 		return err
 	}
 
-	defer ch.Close()
+	defer channel.Close()
 
 	exchangeType, ok := payload.Attributes["type"]
 	if !ok {
 		exchangeType = "topic"
 	}
 
-	return ch.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
+	return channel.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
 }

@@ -22,7 +22,9 @@ type AppSettings struct {
 	FileServerConfig FileServerConfig
 }
 
-func LoadAppSettingsFromEnv() (cfg AppSettings) {
+func LoadAppSettingsFromEnv() AppSettings {
+	var cfg AppSettings
+
 	err := godotenv.Load()
 	if err != nil {
 		logger.Info("Couldn't be load env from .env file")
@@ -32,12 +34,12 @@ func LoadAppSettingsFromEnv() (cfg AppSettings) {
 	if err != nil {
 		logger.Fatal(err)
 
-		return
+		return AppSettings{}
 	}
 
 	if cfg.TraceServiceName == "" {
 		cfg.TraceServiceName = ServiceName
 	}
 
-	return
+	return cfg
 }

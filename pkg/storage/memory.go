@@ -8,6 +8,8 @@ import (
 	"sync"
 )
 
+var ErrFileKeyNotFound = errors.New("fileKey not found")
+
 type MemoryStorage struct {
 	storedFiles map[string][]byte
 	sync.Mutex
@@ -41,7 +43,7 @@ func (ms *MemoryStorage) GetFile(fileKey string) ([]byte, error) {
 		return data, nil
 	}
 
-	return []byte{}, errors.New("fileKey not found")
+	return []byte{}, ErrFileKeyNotFound
 }
 
 func (ms *MemoryStorage) FileExists(fileKey string) bool {
@@ -58,7 +60,7 @@ func (ms *MemoryStorage) RemoveFile(fileKey string) error {
 	defer ms.Unlock()
 
 	if _, ok := ms.storedFiles[fileKey]; !ok {
-		return errors.New("fileKey not found")
+		return ErrFileKeyNotFound
 	}
 
 	delete(ms.storedFiles, fileKey)
