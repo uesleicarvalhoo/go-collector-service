@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
@@ -52,6 +53,23 @@ func (fs *SFTPFileServer) Remove(ctx context.Context, filePath string) error {
 	}
 
 	return fs.sftpClient.Remove(filePath)
+}
+
+func (fs *SFTPFileServer) MoveFile(ctx context.Context, oldname, newname string) error {
+	if err := fs.connect(); err != nil {
+		return err
+	}
+
+	dirName, _ := filepath.Split(newname)
+	if err := fs.sftpClient.MkdirAll(dirName); err != nil {
+		return err
+	}
+
+	if err := fs.sftpClient.MkdirAll(dirName); err != nil {
+		return err
+	}
+
+	return fs.sftpClient.Rename(oldname, newname)
 }
 
 func (fs *SFTPFileServer) connect() error {

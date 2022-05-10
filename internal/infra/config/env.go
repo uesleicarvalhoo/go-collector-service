@@ -27,7 +27,7 @@ func LoadAppSettingsFromEnv() AppSettings {
 
 	err := godotenv.Load()
 	if err != nil {
-		logger.Info("Couldn't be load env from .env file")
+		logger.Infof("Couldn't be load env from .env file: %s", err)
 	}
 
 	_, err = env.UnmarshalFromEnviron(&cfg)

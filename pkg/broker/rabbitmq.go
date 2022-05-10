@@ -3,6 +3,7 @@ package broker
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 
 	"github.com/streadway/amqp"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
@@ -15,7 +16,7 @@ type RabbitMQClient struct {
 }
 
 func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
-	con, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s", cfg.User, cfg.Password, cfg.Host, cfg.Port))
+	con, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s", cfg.User, cfg.Password, net.JoinHostPort(cfg.Host, cfg.Port)))
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +41,11 @@ func (mq *RabbitMQClient) Close() {
 }
 
 func (mq *RabbitMQClient) SendEvent(event Event) error {
-	logger.Infof("Event received, %+v\n", event)
+	logger.Infof("Event received, %+v", event)
 
 	body, err := json.Marshal(event.Data)
 	if err != nil {
-		logger.Infof("Couldn't decode event data: %s\n", err)
+		logger.Infof("Couldn't decode event data: %s", err)
 
 		return err
 	}
@@ -53,7 +54,7 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 		Body: body,
 	})
 	if err != nil {
-		logger.Infof("Failed to publish event, %s\n", err)
+		logger.Infof("Failed to publish event, %s", err)
 
 		return err
 	}

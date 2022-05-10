@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/services/streamer"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
@@ -42,9 +44,7 @@ func main() {
 	}
 
 	// Streamer
-	topic := broker.CreateTopicInput{Name: env.BrokerConfig.EventTopic}
-
-	streamerService, err := streamer.NewStreamer(brokerService, topic)
+	err = brokerService.DeclareTopic(broker.CreateTopicInput{Name: env.BrokerConfig.EventTopic})
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,19 @@ func main() {
 	}
 
 	// Run service
-	senderService := sender.NewSender(streamerService, storage, fileServer)
+	cfg := sender.Config{MatchPatterns: []string{env.MatchPattern}, Workers: 10, EventTopic: "collector.files"}
 
-	senderService.Start(env.MatchPattern)
+	senderService, err := sender.New(cfg, storage, brokerService, fileServer)
+	if err != nil {
+		panic(err)
+	}
+
+	go senderService.Start()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	<-quit
+	senderService.Shutdown()
 }

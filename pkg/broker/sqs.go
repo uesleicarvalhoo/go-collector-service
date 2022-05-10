@@ -75,7 +75,7 @@ func (svc *SQSClient) DeclareTopic(payload CreateTopicInput) error {
 func (svc *SQSClient) getEventBody(data any) (*string, error) {
 	eventData, err := json.Marshal(data)
 	if err != nil {
-		logger.Errorf("Couldn't decode event data: %s\n", err)
+		logger.Errorf("Couldn't decode event data: %s", err)
 
 		return nil, err
 	}

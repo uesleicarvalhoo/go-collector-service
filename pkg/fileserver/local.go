@@ -26,3 +26,12 @@ func (fs *LocalFileServer) Open(ctx context.Context, filePath string) (io.ReadSe
 func (fs *LocalFileServer) Remove(ctx context.Context, filePath string) error {
 	return os.Remove(filePath)
 }
+
+func (fs *LocalFileServer) MoveFile(ctx context.Context, oldname, newname string) error {
+	dirName, _ := filepath.Split(newname)
+	if err := os.MkdirAll(dirName, os.ModePerm); err != nil {
+		return err
+	}
+
+	return os.Rename(oldname, newname)
+}
