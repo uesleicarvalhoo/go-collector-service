@@ -118,7 +118,7 @@ func (s *Sender) collectFiles(pattern string) {
 // Receive files from processChannel and process file.
 func (s *Sender) process() {
 	for file := range s.processChannel {
-		_ = s.processFile(context.TODO(), file)
+		_ = s.processFile(context.Background(), file)
 		s.processWg.Done()
 	}
 }
@@ -249,11 +249,11 @@ func (s *Sender) notifyPublishFileError(ctx context.Context, file models.File, e
 	span := trace.SpanFromContext(ctx)
 	trace.AddSpanEvents(
 		span,
-		"sender.notifyPublishedFile",
+		"sender.notifyPublishedFileError",
 		map[string]string{"topic": s.cfg.EventTopic, "routing-key": routingKey},
 	)
 
-	event, err := models.NewEvent("collector.files", routingKey, data)
+	event, err := models.NewEvent(s.cfg.EventTopic, routingKey, data)
 	if err != nil {
 		logger.Errorf("Invalid event, %s", err)
 	}

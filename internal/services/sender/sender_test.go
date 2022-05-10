@@ -2,6 +2,7 @@ package sender
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -109,7 +110,62 @@ func TestProcessFileSendEventToStreamer(t *testing.T) {
 
 	sendedEvent := brokerEvents[len(brokerEvents)-1]
 
-	assert.Equal(t, sendedEvent, expectedEvent)
+	assert.Equal(t, expectedEvent, sendedEvent)
+}
+
+func TestNotifyPublishedFileSendEventToStreamer(t *testing.T) {
+	// Prepare
+	sut := newSut()
+	memoryBroker := sut.broker.(*broker.MemoryBroker)
+
+	// Arrange
+	file, err := createTempFile("", "test_notify_published_file_send_event_to_streamer.json")
+	assert.Nil(t, err)
+
+	expectedEvent := models.Event{
+		Topic: sut.cfg.EventTopic,
+		Key:   "published",
+		Data:  map[string]string{"file_key": file.Key},
+	}
+
+	// Action
+	sut.notifyPublishedFile(context.TODO(), file)
+
+	// Assert
+	brokerEvents, ok := memoryBroker.Events[sut.cfg.EventTopic]
+	assert.True(t, ok)
+
+	sendedEvent := brokerEvents[len(brokerEvents)-1]
+
+	assert.Equal(t, expectedEvent, sendedEvent)
+}
+
+func TestNotifyPublishedFileErrorSendEventToStreamer(t *testing.T) {
+	// Prepare
+	sut := newSut()
+	memoryBroker := sut.broker.(*broker.MemoryBroker)
+	expetecdErrorMsg := "Invalid File"
+
+	// Arrange
+	file, err := createTempFile("", "test_notify_published_file_error_send_event_to_streamer.json")
+	assert.Nil(t, err)
+
+	expectedEvent := models.Event{
+		Topic: sut.cfg.EventTopic,
+		Key:   "error",
+		Data:  map[string]string{"file_path": file.FilePath, "error": expetecdErrorMsg},
+	}
+
+	// Action
+	sut.notifyPublishFileError(context.TODO(), file, errors.New(expetecdErrorMsg))
+
+	// Assert
+	brokerEvents, ok := memoryBroker.Events[sut.cfg.EventTopic]
+	assert.True(t, ok)
+
+	sendedEvent := brokerEvents[len(brokerEvents)-1]
+
+	assert.Equal(t, expectedEvent, sendedEvent)
 }
 
 func TestConsumeSendAllFilesToStorage(t *testing.T) {
@@ -142,5 +198,3 @@ func TestConsumeSendAllFilesToStorage(t *testing.T) {
 	storedFiles := memoryStorage.GetAllFiles()
 	assert.Len(t, storedFiles, 2)
 }
-
-// TODO: Fazer o teste do moveFile
