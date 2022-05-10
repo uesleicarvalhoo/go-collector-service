@@ -129,7 +129,7 @@ func TestConsumeSendAllFilesToStorage(t *testing.T) {
 	// Arrange
 	pattern := filepath.Join(folder, "*.json")
 
-	go sut.Consume(pattern)
+	sut.Start(pattern)
 	time.Sleep(time.Second * 1)
 
 	// Assert

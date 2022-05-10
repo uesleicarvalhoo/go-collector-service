@@ -61,5 +61,5 @@ func main() {
 	// Run service
 	senderService := sender.NewSender(streamerService, storage, fileServer)
 
-	senderService.Consume(env.MatchPattern)
+	senderService.Start(env.MatchPattern)
 }

@@ -1,0 +1,125 @@
+<mxfile host="65bd71144e">
+    <diagram id="YVLM42BjeiQlJypaf2By" name="Macro - Sorteio">
+        <mxGraphModel dx="1063" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="13" style="edgeStyle=none;html=1;" parent="1" source="2" target="12" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="Escolhe o produto e a quantidade de números" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="80" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Pagamento recusado" style="edgeStyle=none;html=1;" parent="1" source="3" target="7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="290" y="300" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="9" value="Pagamento confirmado" style="edgeStyle=none;html=1;" parent="1" source="3" target="5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Números reservados até o pagamento ser confirmado" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="270" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=none;html=1;" parent="1" source="5" target="10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="É enviado um comunicado via e-mail com os detalhes do pedido e data do sorteio" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="390" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Números escolhidos voltam a ficar disponíveis" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="354" y="280" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;" parent="1" source="10" target="17" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="120" y="600" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="10" value="Chegou a data do sorteio,&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="480" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" style="edgeStyle=none;html=1;" parent="1" source="12" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Informa os dados para contato e pagamento" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="180" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="Sorteio encerrado e o vencedor é comunicado" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="580" width="160" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="56bh1ZZH7YTYkQSFcX3_" name="Macro - Nova rifa">
+        <mxGraphModel dx="1058" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-0"/>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-1" parent="M3Yba57aakJ7rJrVgA49-0"/>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-3" style="edgeStyle=none;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" source="M3Yba57aakJ7rJrVgA49-2" target="M3Yba57aakJ7rJrVgA49-4" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="160" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-2" value="Login com a conta de administrador" style="rounded=0;whiteSpace=wrap;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" vertex="1">
+                    <mxGeometry x="80" y="80" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-9" style="edgeStyle=none;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" source="M3Yba57aakJ7rJrVgA49-4" target="M3Yba57aakJ7rJrVgA49-6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-15" style="edgeStyle=none;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" source="M3Yba57aakJ7rJrVgA49-4" target="M3Yba57aakJ7rJrVgA49-14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-4" value="Cria um novo sorteio e preenche as informações" style="rounded=0;whiteSpace=wrap;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" vertex="1">
+                    <mxGeometry x="80" y="200" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-5" value="Informações da Rifa" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="M3Yba57aakJ7rJrVgA49-1" vertex="1">
+                    <mxGeometry x="280" y="190" width="140" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-6" value="Produto" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="M3Yba57aakJ7rJrVgA49-5" vertex="1">
+                    <mxGeometry y="30" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-7" value="Valor" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="M3Yba57aakJ7rJrVgA49-5" vertex="1">
+                    <mxGeometry y="60" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-8" value="Data do sorteio" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="M3Yba57aakJ7rJrVgA49-5" vertex="1">
+                    <mxGeometry y="90" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-13" value="Qtd de números" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" parent="M3Yba57aakJ7rJrVgA49-5" vertex="1">
+                    <mxGeometry y="120" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="M3Yba57aakJ7rJrVgA49-14" value="Disponibiliza no site e aguarda os clientes" style="rounded=0;whiteSpace=wrap;html=1;" parent="M3Yba57aakJ7rJrVgA49-1" vertex="1">
+                    <mxGeometry x="80" y="320" width="160" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="4HUldcA7LHYAY7uqJ0nV" name="Informar vencedor">
+        <mxGraphModel dx="1063" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-0"/>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-1" parent="UpOTAFMaDjsz_Cas6egp-0"/>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-4" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="UpOTAFMaDjsz_Cas6egp-1" source="UpOTAFMaDjsz_Cas6egp-2" target="UpOTAFMaDjsz_Cas6egp-3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-2" value="Escolhe a rifa em andamento" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="UpOTAFMaDjsz_Cas6egp-1">
+                    <mxGeometry x="40" y="40" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-6" style="edgeStyle=none;html=1;" edge="1" parent="UpOTAFMaDjsz_Cas6egp-1" source="UpOTAFMaDjsz_Cas6egp-3" target="UpOTAFMaDjsz_Cas6egp-5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-8" style="edgeStyle=none;html=1;" edge="1" parent="UpOTAFMaDjsz_Cas6egp-1" source="UpOTAFMaDjsz_Cas6egp-3" target="UpOTAFMaDjsz_Cas6egp-7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-3" value="Informa o número sorteado e anexa o comprovante" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="UpOTAFMaDjsz_Cas6egp-1">
+                    <mxGeometry x="40" y="160" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-5" value="Salva o comprovante em um storage" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="UpOTAFMaDjsz_Cas6egp-1">
+                    <mxGeometry x="240" y="160" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="UpOTAFMaDjsz_Cas6egp-7" value="Notifica o cliente que ganhou o sorteio" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="UpOTAFMaDjsz_Cas6egp-1">
+                    <mxGeometry x="40" y="280" width="120" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
