@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="xzW9w4tnsMkWc0-EfFGB" name="General">
-        <mxGraphModel dx="1058" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="727" dy="609" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -129,8 +129,8 @@
             </root>
         </mxGraphModel>
     </diagram>
-    <diagram id="RDvgd4UyXQ2aDNxSHgwO" name="Extractor">
-        <mxGraphModel dx="1058" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <diagram id="RDvgd4UyXQ2aDNxSHgwO" name="Collector">
+        <mxGraphModel dx="727" dy="609" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="NjNz4klFLznVU9PgvilE-0"/>
                 <mxCell id="NjNz4klFLznVU9PgvilE-1" parent="NjNz4klFLznVU9PgvilE-0"/>

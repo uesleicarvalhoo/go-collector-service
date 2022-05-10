@@ -18,10 +18,6 @@ func (n *NoneBroker) Close() {
 	logger.Info("Stop to consume")
 }
 
-func (n *NoneBroker) startPublish() {
-	logger.Info("Start to Consume")
-}
-
 func (n *NoneBroker) SendEvent(event Event) error {
 	n.Channel <- event
 

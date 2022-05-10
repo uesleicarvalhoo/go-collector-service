@@ -10,6 +10,7 @@ linters:
   - scopelint
   - golint
   - interfacer
+  - exhaustivestruct
   # Not avaliable from go v1.18
   - bodyclose
   - contextcheck
@@ -24,10 +25,9 @@ linters:
   - tparallel
   - unparam
   - wastedassign
-  - unused
   # Only Disabled
+  - exhaustruct
   - ireturn
-  - exhaustivestruct
   - wrapcheck
 
 linters-settings:

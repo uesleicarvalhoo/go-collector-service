@@ -4,8 +4,16 @@ type MemoryBroker struct {
 	Events map[string][]Event
 }
 
-func NewMemoryBroker() *MemoryBroker {
-	return &MemoryBroker{Events: make(map[string][]Event)}
+func NewMemoryBroker(topics ...CreateTopicInput) (*MemoryBroker, error) {
+	client := &MemoryBroker{Events: make(map[string][]Event)}
+
+	for _, topic := range topics {
+		if err := client.DeclareTopic(topic); err != nil {
+			return nil, err
+		}
+	}
+
+	return client, nil
 }
 
 func (mb *MemoryBroker) SendEvent(event Event) error {

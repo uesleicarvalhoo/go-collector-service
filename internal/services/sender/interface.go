@@ -2,22 +2,36 @@ package sender
 
 import (
 	"context"
+	"errors"
 	"io"
+	"time"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
 )
 
-type Streamer interface {
-	NotifyPublishedFile(ctx context.Context, fileKey string, file models.File) error
-	NotifyInvalidFile(ctx context.Context, file models.File) error
-}
+var (
+	ErrInvalidWorkersCount  = errors.New("workers must be higher then 0")
+	ErrInvalidPattern       = errors.New("one or more patterns must be informed")
+	ErrServiceAlreadStarted = errors.New("service is running")
+)
 
 type Storage interface {
-	SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) (err error)
+	SendFile(context.Context, string, io.ReadSeeker) (err error)
 }
 
 type FileServer interface {
-	Glob(ctx context.Context, pattern string) ([]string, error)
-	Open(ctx context.Context, filePath string) (io.ReadSeekCloser, error)
-	Remove(ctx context.Context, filePath string) error
+	Glob(context.Context, string) ([]string, error)
+	Open(context.Context, string) (io.ReadSeekCloser, error)
+	MoveFile(context.Context, string, string) error
+}
+
+type Broker interface {
+	SendEvent(models.Event) error
+}
+
+type Config struct {
+	EventTopic    string
+	MatchPatterns []string
+	Workers       int
+	Delay         time.Duration
 }

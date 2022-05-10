@@ -15,7 +15,10 @@ type AppSettings struct {
 	TraceServiceName string `env:"TRACE_SERVICE_NAME"`
 	TraceURL         string `env:"TRACE_URL,default=http://localhost:14268"`
 
-	MatchPattern string `env:"SENDER_MATCH_PATTERN,default=/files/*"`
+	EventTopic     string `env:"SENDER_EVENT_TOPIC,default=collector.services"`
+	ParalelUploads int    `env:"SENDER_PARALLEL_UPLOADS,default=2"`
+	CollectDelay   int    `env:"SENDER_COLLECT_DELAY,default=5"`
+	MatchPattern   string `env:"SENDER_MATCH_PATTERN,default=/files/*"`
 
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
@@ -27,7 +30,7 @@ func LoadAppSettingsFromEnv() AppSettings {
 
 	err := godotenv.Load()
 	if err != nil {
-		logger.Info("Couldn't be load env from .env file")
+		logger.Infof("Couldn't be load env from .env file: %s", err)
 	}
 
 	_, err = env.UnmarshalFromEnviron(&cfg)
