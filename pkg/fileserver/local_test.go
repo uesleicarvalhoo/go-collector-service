@@ -114,3 +114,23 @@ func TestOpenReturnValidContentReader(t *testing.T) {
 
 	assert.Equal(t, []byte(fileData), data)
 }
+
+func TestMoveFileShouldCreateFolders(t *testing.T) {
+	// Arrange
+	sut := newSut()
+
+	file, err := createTempFile("test_move_file_should_create_folders.txt")
+	assert.Nil(t, err)
+	assert.FileExists(t, file)
+
+	dir, name := filepath.Split(file)
+
+	// Action
+	newpath := filepath.Join(dir, "sent", name)
+	err = sut.MoveFile(context.TODO(), file, newpath)
+	assert.Nil(t, err)
+
+	// Assert
+	assert.NoFileExists(t, file)
+	assert.FileExists(t, newpath)
+}

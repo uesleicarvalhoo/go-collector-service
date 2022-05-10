@@ -47,7 +47,11 @@ func newSut(patterns ...string) *Sender {
 		patterns = append(patterns, "")
 	}
 
-	brokerService := broker.NewMemoryBroker()
+	brokerService, err := broker.NewMemoryBroker()
+	if err != nil {
+		panic(err)
+	}
+
 	fs, err := fileserver.NewLocalFileServer(fileserver.Config{})
 	if err != nil {
 		panic(err)

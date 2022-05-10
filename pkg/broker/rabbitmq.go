@@ -15,7 +15,7 @@ type RabbitMQClient struct {
 	channel    *amqp.Channel
 }
 
-func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
+func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient, error) {
 	con, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s", cfg.User, cfg.Password, net.JoinHostPort(cfg.Host, cfg.Port)))
 	if err != nil {
 		return nil, err
@@ -30,6 +30,12 @@ func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
 		cfg:        cfg,
 		connection: con,
 		channel:    channel,
+	}
+
+	for _, topic := range topics {
+		if err = client.DeclareTopic(topic); err != nil {
+			return nil, err
+		}
 	}
 
 	return client, nil
