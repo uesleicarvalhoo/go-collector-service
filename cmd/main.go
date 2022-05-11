@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -28,7 +27,7 @@ func main() {
 	provider, err := trace.NewProvider(trace.ProviderConfig{
 		JaegerEndpoint: fmt.Sprintf("%s/api/traces", cfg.TraceURL),
 		ServiceName:    cfg.TraceServiceName,
-		ServiceVersion: config.ServiceVersion,
+		ServiceVersion: cfg.ServiceVersion,
 		Environment:    cfg.Env,
 		Disabled:       false,
 	})
@@ -57,7 +56,7 @@ func main() {
 
 	// Run service
 	senderCfg := sender.Config{
-		MatchPatterns: strings.Split(cfg.MatchPatterns, ";"),
+		MatchPatterns: cfg.MatchPatterns,
 		Workers:       cfg.ParalelUploads,
 		EventTopic:    cfg.EventTopic,
 		Delay:         time.Second * time.Duration(cfg.CollectDelay),

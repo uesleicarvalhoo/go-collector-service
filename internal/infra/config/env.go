@@ -1,24 +1,28 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/joho/godotenv"
-	"github.com/netflix/go-env"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type AppSettings struct {
-	Env   string `env:"ENVIRONMENT,default=dev"`
-	Debug bool   `env:"DEBUG,default=false"`
+	ServiceName    string `envconfig:"SERVICE_NAME" default:"go-collector"`
+	ServiceVersion string `envconfig:"SERVICE_VERSION" default:"0.0.0"`
+	Env            string `envconfig:"ENVIRONMENT" default:"dev"`
+	Debug          bool   `envconfig:"DEBUG" default:"false"`
 
-	AwsRegion string `env:"AWS_REGION,default=sa-east-1"`
+	AwsRegion string `envconfig:"AWS_REGION" default:"sa-east-1"`
 
-	TraceServiceName string `env:"TRACE_SERVICE_NAME"`
-	TraceURL         string `env:"TRACE_URL,default=http://localhost:14268"`
+	TraceServiceName string `envconfig:"TRACE_SERVICE_NAME"`
+	TraceURL         string `envconfig:"TRACE_URL" default:"http://localhost:14268"`
 
-	EventTopic     string `env:"SENDER_EVENT_TOPIC,default=collector.services"`
-	ParalelUploads int    `env:"SENDER_PARALLEL_UPLOADS,default=2"`
-	CollectDelay   int    `env:"SENDER_COLLECT_DELAY,default=5"`
-	MatchPatterns  string `env:"SENDER_MATCH_PATTERNS,default=upload/*.json;files/*.txt"`
+	EventTopic     string   `envconfig:"SENDER_EVENT_TOPIC" default:"collector.services"`
+	ParalelUploads int      `envconfig:"SENDER_PARALLEL_UPLOADS" default:"2"`
+	CollectDelay   int      `envconfig:"SENDER_COLLECT_DELAY" default:"5"`
+	MatchPatterns  []string `envconfig:"SENDER_MATCH_PATTERNS" default:"upload/*.json,files/*.txt"`
 
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
@@ -33,15 +37,15 @@ func LoadAppSettingsFromEnv() AppSettings {
 		logger.Infof("Couldn't be load env from .env file: %s", err)
 	}
 
-	_, err = env.UnmarshalFromEnviron(&cfg)
+	err = envconfig.Process("", &cfg)
 	if err != nil {
 		logger.Fatal(err)
 
 		return AppSettings{}
 	}
 
-	if cfg.TraceServiceName == "" {
-		cfg.TraceServiceName = ServiceName
+	if strings.TrimSpace(cfg.TraceServiceName) == "" {
+		cfg.TraceServiceName = cfg.ServiceName
 	}
 
 	return cfg
