@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -40,11 +41,10 @@ func main() {
 	brokerService, err := broker.NewRabbitMqClient(
 		cfg.BrokerConfig, broker.CreateTopicInput{Name: cfg.BrokerConfig.EventTopic},
 	)
-	defer brokerService.Close()
-
 	if err != nil {
 		panic(err)
 	}
+	defer brokerService.Close()
 
 	// Storage
 	storage := storage.NewS3Storage(cfg.StorageConfig, cfg.AwsRegion)
@@ -57,7 +57,7 @@ func main() {
 
 	// Run service
 	senderCfg := sender.Config{
-		MatchPatterns: []string{cfg.MatchPattern},
+		MatchPatterns: strings.Split(cfg.MatchPatterns, ";"),
 		Workers:       cfg.ParalelUploads,
 		EventTopic:    cfg.EventTopic,
 		Delay:         time.Second * time.Duration(cfg.CollectDelay),
