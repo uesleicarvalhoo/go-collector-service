@@ -14,14 +14,11 @@ linters:
   # Not avaliable from go v1.18
   - bodyclose
   - contextcheck
-  - gosimple
   - nilerr
   - noctx
   - rowserrcheck
   - sqlclosecheck
-  - staticcheck
   - structcheck
-  - stylecheck
   - tparallel
   - unparam
   - wastedassign
