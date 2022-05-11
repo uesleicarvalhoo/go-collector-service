@@ -18,7 +18,7 @@ type AppSettings struct {
 	EventTopic     string `env:"SENDER_EVENT_TOPIC,default=collector.services"`
 	ParalelUploads int    `env:"SENDER_PARALLEL_UPLOADS,default=2"`
 	CollectDelay   int    `env:"SENDER_COLLECT_DELAY,default=5"`
-	MatchPattern   string `env:"SENDER_MATCH_PATTERN,default=/files/*"`
+	MatchPatterns  string `env:"SENDER_MATCH_PATTERNS,default=upload/*.json;files/*.txt"`
 
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig

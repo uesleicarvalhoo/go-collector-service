@@ -3,6 +3,7 @@ package sender
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -10,31 +11,24 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
-
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"
 )
 
-var tmpDir string
-
-func init() {
-	folder, err := ioutil.TempDir("", "*")
-	if err != nil {
-		panic(err)
-	}
-
-	tmpDir = folder
-}
-
 func createTempFile(dir, fileName string) (models.File, error) {
 	if dir == "" {
+		tmpDir, err := ioutil.TempDir("", "*")
+		if err != nil {
+			panic(err)
+		}
+
 		dir = tmpDir
 	}
 
 	fp := filepath.Join(dir, fileName)
 
-	err := ioutil.WriteFile(fp, []byte{}, 0o644)
+	err := ioutil.WriteFile(fp, []byte{}, fs.ModePerm)
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +69,7 @@ func newSut(patterns ...string) *Sender {
 func TestPublishFileSendFileToStorage(t *testing.T) {
 	// Prepare
 	sut := newSut()
-	memoryStorage := sut.storage.(*storage.MemoryStorage)
+	memoryStorage, _ := sut.storage.(*storage.MemoryStorage)
 
 	// Arrange
 	file, err := createTempFile("", "test_publish_file_send_file_to_storage.json")
@@ -92,7 +86,7 @@ func TestPublishFileSendFileToStorage(t *testing.T) {
 func TestProcessFileSendEventToStreamer(t *testing.T) {
 	// Prepare
 	sut := newSut()
-	memoryBroker := sut.broker.(*broker.MemoryBroker)
+	memoryBroker, _ := sut.broker.(*broker.MemoryBroker)
 
 	// Arrange
 	file, err := createTempFile("", "test_publish_file_send_file_to_storage.json")
@@ -120,7 +114,7 @@ func TestProcessFileSendEventToStreamer(t *testing.T) {
 func TestNotifyPublishedFileSendEventToStreamer(t *testing.T) {
 	// Prepare
 	sut := newSut()
-	memoryBroker := sut.broker.(*broker.MemoryBroker)
+	memoryBroker, _ := sut.broker.(*broker.MemoryBroker)
 
 	// Arrange
 	file, err := createTempFile("", "test_notify_published_file_send_event_to_streamer.json")
@@ -147,7 +141,7 @@ func TestNotifyPublishedFileSendEventToStreamer(t *testing.T) {
 func TestNotifyPublishedFileErrorSendEventToStreamer(t *testing.T) {
 	// Prepare
 	sut := newSut()
-	memoryBroker := sut.broker.(*broker.MemoryBroker)
+	memoryBroker, _ := sut.broker.(*broker.MemoryBroker)
 	expetecdErrorMsg := "Invalid File"
 
 	// Arrange
@@ -182,7 +176,7 @@ func TestConsumeSendAllFilesToStorage(t *testing.T) {
 	pattern := filepath.Join(folder, "*.json")
 	sut := newSut(pattern)
 
-	memoryStorage := sut.storage.(*storage.MemoryStorage)
+	memoryStorage, _ := sut.storage.(*storage.MemoryStorage)
 	assert.Empty(t, memoryStorage.GetAllFiles())
 
 	testFile1, err := createTempFile(folder, "test_file_1.json")

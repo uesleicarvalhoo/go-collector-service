@@ -45,7 +45,7 @@ func New(cfg Config, storage Storage, broker Broker, fileServer FileServer) (*Se
 	}
 
 	for i := 0; i < sender.cfg.Workers; i++ {
-		go sender.process()
+		go sender.fileProcessWorker()
 	}
 
 	return sender, nil
@@ -59,7 +59,7 @@ func (s *Sender) Start() {
 	}
 
 	s.isRunning = true
-	logger.Infof("Starting file collection with %d workers and bind %d pattenrs.", s.cfg.Workers, len(s.cfg.MatchPatterns))
+	logger.Infof("Starting file collection with %d workers and bind %d pattenrs", s.cfg.Workers, len(s.cfg.MatchPatterns))
 
 	for s.isRunning {
 		for _, pattern := range s.cfg.MatchPatterns {
@@ -94,18 +94,22 @@ func (s *Sender) collectFiles(pattern string) {
 	ctx, span := trace.NewSpan(context.Background(), "sender.collectFiles")
 	defer span.End()
 
+	trace.AddSpanTags(span, map[string]string{"pattern": pattern})
 	logger.Infof("Collecting files with pattern: %s.", pattern)
 
 	collectedFiles, err := s.fileServer.Glob(ctx, pattern)
 	if err != nil {
+		trace.AddSpanError(span, err)
+		logger.Errorf("Error on collect files with pattern %s, %s", pattern, err)
+
 		return
 	}
 
 	for _, fp := range collectedFiles {
 		model, err := s.createFileModel(fp)
 		if err != nil {
-			logger.Errorf("Failed to create FileModel, %s", err)
 			trace.AddSpanError(span, err)
+			logger.Errorf("Failed to create FileModel, %s", err)
 
 			continue
 		}
@@ -116,7 +120,7 @@ func (s *Sender) collectFiles(pattern string) {
 }
 
 // Receive files from processChannel and process file.
-func (s *Sender) process() {
+func (s *Sender) fileProcessWorker() {
 	for file := range s.processChannel {
 		_ = s.processFile(context.Background(), file)
 		s.processWg.Done()
