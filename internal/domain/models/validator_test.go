@@ -11,7 +11,7 @@ func TestHasErrorsShouldReturnFalseWhenHasNoErrors(t *testing.T) {
 	sut := newValidator()
 
 	// Action
-	result := sut.hasErrors()
+	result := sut.HasErrors()
 
 	// Assert
 	assert.False(t, result)
@@ -20,10 +20,10 @@ func TestHasErrorsShouldReturnFalseWhenHasNoErrors(t *testing.T) {
 func TestHasErrorsShouldReturnTrueWhenHasErrors(t *testing.T) {
 	// Arrange
 	sut := newValidator()
-	sut.addError(ValidationErrorProps{Context: "test", Message: "err msg"})
+	sut.AddError(ValidationErrorProps{Context: "test", Message: "err msg"})
 
 	// Action
-	result := sut.hasErrors()
+	result := sut.HasErrors()
 
 	// Assert
 	assert.True(t, result)
@@ -44,12 +44,12 @@ func TestGetErrorAgroupErrorMessagesByContext(t *testing.T) {
 	// Prepare
 	firstError := ValidationErrorProps{Context: "test", Message: "first error"}
 	secondError := ValidationErrorProps{Context: "test", Message: "second error"}
-	expectedErrMessage := "test: first error, second error."
+	expectedErrMessage := "test: first error, second error"
 
 	// Arrange
 	sut := newValidator()
-	sut.addError(firstError)
-	sut.addError(secondError)
+	sut.AddError(firstError)
+	sut.AddError(secondError)
 
 	// Action
 	err := sut.GetError()
