@@ -11,14 +11,12 @@ import (
 )
 
 type SQSClient struct {
-	Channel chan Event
 	session *session.Session
 }
 
 func NewSQSClient(cfg Config, region string) (*SQSClient, error) {
 	uri := net.JoinHostPort(cfg.Host, cfg.Port)
 	client := &SQSClient{
-		Channel: make(chan Event, 50),
 		session: session.Must(session.NewSession(&aws.Config{
 			Region:   aws.String(region),
 			Endpoint: aws.String(uri),
