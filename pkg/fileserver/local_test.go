@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/fs"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -72,6 +73,40 @@ func TestGlob(t *testing.T) {
 
 	assert.Truef(t, expectedFileIsCollected, "File '%s' not collected", expectedFile)
 	assert.Falsef(t, ignoredFileIsCollected, "File '%s' is collected", ignoredFile)
+}
+
+func TestGlobShouldReturnOnlyFiles(t *testing.T) {
+	// Prepare
+	sut := newSut()
+
+	// Arrange
+	expectedFile, err := createTempFile("test_json_file.json")
+	assert.Nil(t, err)
+
+	ignoredDir := filepath.Join(tmpDir, "ignored_dir")
+	err = os.Mkdir(ignoredDir, os.ModePerm)
+	assert.Nil(t, err)
+
+	// Action
+	pattern := filepath.Join(tmpDir, "*.json")
+	collectedFiles, err := sut.Glob(context.TODO(), pattern)
+	assert.Nil(t, err)
+
+	// Assert
+	expectedFileIsCollected := false
+	dirIsIgnored := true
+
+	for _, file := range collectedFiles {
+		if file == expectedFile {
+			expectedFileIsCollected = true
+		}
+		if file == ignoredDir {
+			dirIsIgnored = false
+		}
+	}
+
+	assert.Truef(t, expectedFileIsCollected, "File '%s' not collected", expectedFile)
+	assert.Truef(t, dirIsIgnored, "Directory '%s' is not ignored", ignoredDir)
 }
 
 func TestRemoveFileDeleteFile(t *testing.T) {

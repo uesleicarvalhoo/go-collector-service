@@ -36,7 +36,20 @@ func (fs *SFTPFileServer) Glob(ctx context.Context, pattern string) ([]string, e
 		return nil, err
 	}
 
-	return fs.sftpClient.Glob(pattern)
+	files := []string{}
+
+	matchs, err := fs.sftpClient.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, match := range matchs {
+		if f, _ := fs.sftpClient.Stat(match); !f.IsDir() {
+			files = append(files, match)
+		}
+	}
+
+	return files, nil
 }
 
 func (fs *SFTPFileServer) Open(ctx context.Context, filePath string) (io.ReadSeekCloser, error) {
