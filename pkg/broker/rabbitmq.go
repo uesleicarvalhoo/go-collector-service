@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 
 	"github.com/streadway/amqp"
@@ -22,7 +21,6 @@ type RabbitMQClient struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 	errChannel chan *amqp.Error
-	sync.Mutex
 }
 
 func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient, error) {
@@ -131,24 +129,24 @@ func (mq *RabbitMQClient) connect() error {
 
 func (mq *RabbitMQClient) handleConnectionError() {
 	for range mq.errChannel {
-		mq.Lock()
-
 		logger.Error("RabbitMQ connection is closed, trying stablish a new connection..")
 
-		mq.connection = nil
 		for i := 0; i < maxConnectionRetries; i++ {
-			if err := mq.connect(); err == nil {
-				logger.Error("RabbitMQ connection re-established with success")
-				mq.Unlock()
+			mq.connection = nil
 
-				continue
+			err := mq.connect()
+			if err == nil {
+				logger.Error("RabbitMQ connection re-established with success")
+
+				break
 			}
 
-			logger.Errorf("Failed to re-connect, trying again in %d seconds..", retryConnectionDelay)
+			logger.Errorf("Failed to re-connect, '%s', trying again in %d seconds..", err, retryConnectionDelay)
 			time.Sleep(time.Second * retryConnectionDelay)
 		}
 
-		mq.Unlock()
-		logger.Panicf("Couldn't reconnect to RabbitMQ")
+		if mq.channel == nil {
+			logger.Panicf("Couldn't reconnect to RabbitMQ")
+		}
 	}
 }

@@ -28,7 +28,7 @@ func main() {
 		ServiceName:    cfg.TraceServiceName,
 		ServiceVersion: cfg.ServiceVersion,
 		Environment:    cfg.Env,
-		Disabled:       false,
+		Disabled:       !cfg.TraceEnable,
 	})
 	if err != nil {
 		logger.Fatal(err)

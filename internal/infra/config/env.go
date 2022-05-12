@@ -18,6 +18,7 @@ type AppSettings struct {
 
 	TraceServiceName string `envconfig:"TRACE_SERVICE_NAME"`
 	TraceURL         string `envconfig:"TRACE_URL" default:"http://localhost:14268"`
+	TraceEnable      bool   `envconfig:"TRACE_ENABLE" defult:"false"`
 
 	SenderConfig     SenderConfig
 	BrokerConfig     BrokerConfig
