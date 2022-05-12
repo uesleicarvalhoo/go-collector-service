@@ -4,14 +4,12 @@ import (
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
-type NoneBroker struct {
-	Channel chan Event
-}
+type NoneBroker struct{}
 
 func NewNoneBroker() *NoneBroker {
-	return &NoneBroker{
-		Channel: make(chan Event, 50),
-	}
+	logger.Warning("Using NoneBroker, all events are ignored")
+
+	return &NoneBroker{}
 }
 
 func (n *NoneBroker) Close() {
@@ -19,7 +17,7 @@ func (n *NoneBroker) Close() {
 }
 
 func (n *NoneBroker) SendEvent(event Event) error {
-	n.Channel <- event
+	logger.Warningf("Ignored event: %+v", event)
 
 	return nil
 }

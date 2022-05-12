@@ -27,14 +27,14 @@ func NewEvent(topic, key string, data any) (Event, error) {
 func (e *Event) validate() error {
 	validator := newValidator()
 	if strings.TrimSpace(e.Topic) == "" {
-		validator.addError(ValidationErrorProps{Context: "event", Message: "topic should be informed"})
+		validator.AddError(ValidationErrorProps{Context: "event", Message: "topic should be informed"})
 	}
 
 	if strings.TrimSpace(e.Key) == "" {
-		validator.addError(ValidationErrorProps{Context: "event", Message: "key should be informed"})
+		validator.AddError(ValidationErrorProps{Context: "event", Message: "key should be informed"})
 	}
 
-	if validator.hasErrors() {
+	if validator.HasErrors() {
 		return validator.GetError()
 	}
 

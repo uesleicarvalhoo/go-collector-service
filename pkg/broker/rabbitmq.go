@@ -2,38 +2,41 @@ package broker
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
+	"sync"
+	"time"
 
 	"github.com/streadway/amqp"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
+)
+
+const (
+	maxConnectionRetries = 5
+	retryConnectionDelay = 1
 )
 
 type RabbitMQClient struct {
 	cfg        Config
 	connection *amqp.Connection
 	channel    *amqp.Channel
+	errChannel chan *amqp.Error
+	sync.Mutex
 }
 
 func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient, error) {
-	con, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s", cfg.User, cfg.Password, net.JoinHostPort(cfg.Host, cfg.Port)))
-	if err != nil {
-		return nil, err
-	}
-
-	channel, err := con.Channel()
-	if err != nil {
-		return nil, err
-	}
-
 	client := &RabbitMQClient{
 		cfg:        cfg,
-		connection: con,
-		channel:    channel,
+		errChannel: make(chan *amqp.Error, 1),
+	}
+
+	if err := client.connect(); err != nil {
+		return nil, err
 	}
 
 	for _, topic := range topics {
-		if err = client.DeclareTopic(topic); err != nil {
+		if err := client.DeclareTopic(topic); err != nil {
 			return nil, err
 		}
 	}
@@ -47,6 +50,10 @@ func (mq *RabbitMQClient) Close() {
 }
 
 func (mq *RabbitMQClient) SendEvent(event Event) error {
+	if err := mq.connect(); err != nil {
+		return err
+	}
+
 	logger.Infof("Event received, %+v", event)
 
 	body, err := json.Marshal(event.Data)
@@ -60,6 +67,16 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 		Body: body,
 	})
 	if err != nil {
+		if errors.Is(err, amqp.ErrClosed) {
+			logger.Infof("Connection error, retrying to send event %+v", event)
+
+			if retryErr := mq.SendEvent(event); retryErr != nil {
+				return retryErr
+			}
+
+			return nil
+		}
+
 		logger.Infof("Failed to publish event, %s", err)
 
 		return err
@@ -82,4 +99,56 @@ func (mq *RabbitMQClient) DeclareTopic(payload CreateTopicInput) error {
 	}
 
 	return channel.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
+}
+
+func (mq *RabbitMQClient) connect() error {
+	if mq.connection != nil && !mq.connection.IsClosed() {
+		return nil
+	}
+
+	uri := fmt.Sprintf("amqp://%s:%s@%s", mq.cfg.User, mq.cfg.Password, net.JoinHostPort(mq.cfg.Host, mq.cfg.Port))
+
+	con, err := amqp.Dial(uri)
+	if err != nil {
+		return err
+	}
+
+	channel, err := con.Channel()
+	if err != nil {
+		return err
+	}
+
+	mq.errChannel = channel.NotifyClose(make(chan *amqp.Error))
+
+	con.IsClosed()
+	mq.connection = con
+	mq.channel = channel
+
+	go mq.handleConnectionError()
+
+	return nil
+}
+
+func (mq *RabbitMQClient) handleConnectionError() {
+	for range mq.errChannel {
+		mq.Lock()
+
+		logger.Error("RabbitMQ connection is closed, trying stablish a new connection..")
+
+		mq.connection = nil
+		for i := 0; i < maxConnectionRetries; i++ {
+			if err := mq.connect(); err == nil {
+				logger.Error("RabbitMQ connection re-established with success")
+				mq.Unlock()
+
+				continue
+			}
+
+			logger.Errorf("Failed to re-connect, trying again in %d seconds..", retryConnectionDelay)
+			time.Sleep(time.Second * retryConnectionDelay)
+		}
+
+		mq.Unlock()
+		logger.Panicf("Couldn't reconnect to RabbitMQ")
+	}
 }

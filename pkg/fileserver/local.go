@@ -16,7 +16,20 @@ func NewLocalFileServer(cfg Config) (*LocalFileServer, error) {
 }
 
 func (fs *LocalFileServer) Glob(ctx context.Context, pattern string) ([]string, error) {
-	return filepath.Glob(pattern)
+	files := []string{}
+
+	matchs, err := filepath.Glob(pattern)
+	if err != nil {
+		return []string{}, err
+	}
+
+	for _, match := range matchs {
+		if f, _ := os.Stat(match); !f.IsDir() {
+			files = append(files, match)
+		}
+	}
+
+	return files, nil
 }
 
 func (fs *LocalFileServer) Open(ctx context.Context, filePath string) (io.ReadSeekCloser, error) {

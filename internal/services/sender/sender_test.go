@@ -52,10 +52,10 @@ func newSut(patterns ...string) *Sender {
 	}
 
 	cfg := Config{
-		Workers:       1,
-		EventTopic:    "collector.files",
-		MatchPatterns: patterns,
-		Delay:         time.Second,
+		ParalelUploads: 1,
+		EventTopic:     "collector.files",
+		MatchPatterns:  patterns,
+		CollectDelay:   1,
 	}
 
 	sender, err := New(cfg, storage.NewMemoryStorage(), brokerService, fs)
