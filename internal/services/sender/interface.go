@@ -4,16 +4,34 @@ import (
 	"context"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
 )
 
-var (
-	ErrInvalidWorkersCount  = errors.New("workers must be higher then 0")
-	ErrInvalidPattern       = errors.New("one or more patterns must be informed")
-	ErrServiceAlreadStarted = errors.New("service is running")
-)
+var ErrServiceAlreadStarted = errors.New("service is running")
+
+type Config = config.SenderConfig
+
+func validateConfig(cfg Config) error {
+	validator := models.Validator{}
+
+	if cfg.ParalelUploads == 0 {
+		validator.AddError(models.ValidationErrorProps{Context: "config", Message: "'PralelUploads' must be higher then 0"})
+	}
+
+	if len(cfg.MatchPatterns) == 0 {
+		validator.AddError(
+			models.ValidationErrorProps{Context: "config", Message: "'MatchPatterns' must be have one or more pattern"},
+		)
+	}
+
+	if validator.HasErrors() {
+		return validator.GetError()
+	}
+
+	return nil
+}
 
 type Storage interface {
 	SendFile(context.Context, string, io.ReadSeeker) (err error)
@@ -27,11 +45,4 @@ type FileServer interface {
 
 type Broker interface {
 	SendEvent(models.Event) error
-}
-
-type Config struct {
-	EventTopic    string
-	MatchPatterns []string
-	Workers       int
-	Delay         time.Duration
 }

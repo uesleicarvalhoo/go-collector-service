@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
@@ -55,14 +54,7 @@ func main() {
 	}
 
 	// Run service
-	senderCfg := sender.Config{
-		MatchPatterns: cfg.MatchPatterns,
-		Workers:       cfg.ParalelUploads,
-		EventTopic:    cfg.EventTopic,
-		Delay:         time.Second * time.Duration(cfg.CollectDelay),
-	}
-
-	senderService, err := sender.New(senderCfg, storage, brokerService, fileServer)
+	senderService, err := sender.New(cfg.SenderConfig, storage, brokerService, fileServer)
 	if err != nil {
 		panic(err)
 	}

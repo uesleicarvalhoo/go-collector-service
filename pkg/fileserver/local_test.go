@@ -80,7 +80,7 @@ func TestGlobShouldReturnOnlyFiles(t *testing.T) {
 	sut := newSut()
 
 	// Arrange
-	expectedFile, err := createTempFile("test_json_file.json")
+	expectedFile, err := createTempFile("test_glob_should_return_only_files_collected_file.json")
 	assert.Nil(t, err)
 
 	ignoredDir := filepath.Join(tmpDir, "ignored_dir")

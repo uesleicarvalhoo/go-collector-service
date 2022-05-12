@@ -132,7 +132,6 @@ func (mq *RabbitMQClient) connect() error {
 func (mq *RabbitMQClient) handleConnectionError() {
 	for range mq.errChannel {
 		mq.Lock()
-		defer mq.Unlock()
 
 		logger.Error("RabbitMQ connection is closed, trying stablish a new connection..")
 
@@ -140,14 +139,16 @@ func (mq *RabbitMQClient) handleConnectionError() {
 		for i := 0; i < maxConnectionRetries; i++ {
 			if err := mq.connect(); err == nil {
 				logger.Error("RabbitMQ connection re-established with success")
+				mq.Unlock()
 
-				return
+				continue
 			}
 
 			logger.Errorf("Failed to re-connect, trying again in %d seconds..", retryConnectionDelay)
 			time.Sleep(time.Second * retryConnectionDelay)
 		}
 
+		mq.Unlock()
 		logger.Panicf("Couldn't reconnect to RabbitMQ")
 	}
 }

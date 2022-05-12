@@ -28,16 +28,16 @@ func newValidator() Validator {
 	}
 }
 
-func (e *Validator) addError(err ValidationErrorProps) {
+func (e *Validator) AddError(err ValidationErrorProps) {
 	e.errors = append(e.errors, err)
 }
 
-func (e *Validator) hasErrors() bool {
+func (e *Validator) HasErrors() bool {
 	return len(e.errors) > 0
 }
 
 func (e Validator) GetError() *ValidationError {
-	if !e.hasErrors() {
+	if !e.HasErrors() {
 		return nil
 	}
 
@@ -50,7 +50,7 @@ func (e Validator) GetError() *ValidationError {
 
 	for k, v := range errGroup {
 		msg := strings.Join(v, ", ")
-		errMsgs = append(errMsgs, fmt.Sprintf("%s: %s.", k, msg))
+		errMsgs = append(errMsgs, fmt.Sprintf("%s: %s", k, msg))
 	}
 
 	return &ValidationError{Message: strings.Join(errMsgs, "\n")}

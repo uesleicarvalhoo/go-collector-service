@@ -13,6 +13,8 @@ import (
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/trace"
 )
 
+const processChannelBuffer = 100
+
 type Sender struct {
 	broker         Broker
 	storage        Storage
@@ -26,12 +28,8 @@ type Sender struct {
 }
 
 func New(cfg Config, storage Storage, broker Broker, fileServer FileServer) (*Sender, error) {
-	if cfg.Workers == 0 {
-		return nil, ErrInvalidWorkersCount
-	}
-
-	if len(cfg.MatchPatterns) == 0 {
-		return nil, ErrInvalidPattern
+	if err := validateConfig(cfg); err != nil {
+		return nil, err
 	}
 
 	sender := &Sender{
@@ -41,10 +39,10 @@ func New(cfg Config, storage Storage, broker Broker, fileServer FileServer) (*Se
 		fileServer:     fileServer,
 		processWg:      sync.WaitGroup{},
 		collectWg:      sync.WaitGroup{},
-		processChannel: make(chan models.File, 50),
+		processChannel: make(chan models.File, processChannelBuffer),
 	}
 
-	for i := 0; i < sender.cfg.Workers; i++ {
+	for i := 0; i < sender.cfg.ParalelUploads; i++ {
 		go sender.fileProcessWorker()
 	}
 
@@ -59,7 +57,9 @@ func (s *Sender) Start() {
 	}
 
 	s.isRunning = true
-	logger.Infof("Starting file collection with %d workers and bind %d pattenrs", s.cfg.Workers, len(s.cfg.MatchPatterns))
+	logger.Infof(
+		"Starting file collection with %d workers and bind %d pattenrs", s.cfg.ParalelUploads, len(s.cfg.MatchPatterns),
+	)
 
 	for s.isRunning {
 		for _, pattern := range s.cfg.MatchPatterns {
@@ -70,7 +70,7 @@ func (s *Sender) Start() {
 
 		s.collectWg.Wait()
 		s.processWg.Wait()
-		time.Sleep(s.cfg.Delay)
+		time.Sleep(time.Second * time.Duration(s.cfg.CollectDelay))
 	}
 
 	logger.Infof("File collection stoped.")
@@ -95,7 +95,7 @@ func (s *Sender) collectFiles(pattern string) {
 	defer span.End()
 
 	trace.AddSpanTags(span, map[string]string{"pattern": pattern})
-	logger.Infof("Collecting files with pattern: %s.", pattern)
+	logger.Infof("Collecting files with pattern: %s", pattern)
 
 	collectedFiles, err := s.fileServer.Glob(ctx, pattern)
 	if err != nil {
@@ -104,6 +104,8 @@ func (s *Sender) collectFiles(pattern string) {
 
 		return
 	}
+
+	sendedCount := 0
 
 	for _, fp := range collectedFiles {
 		model, err := s.createFileModel(fp)
@@ -116,6 +118,11 @@ func (s *Sender) collectFiles(pattern string) {
 
 		s.processWg.Add(1)
 		s.processChannel <- model
+
+		sendedCount++
+		if s.cfg.MaxCollectBatchSize > 0 && sendedCount == s.cfg.MaxCollectBatchSize {
+			return
+		}
 	}
 }
 
@@ -215,12 +222,8 @@ func (s *Sender) moveFile(ctx context.Context, file models.File) {
 // Insert a timestamp at end of file name maintaining same file extension.
 func (s *Sender) createFileModel(filePath string) (models.File, error) {
 	fileName := filepath.Base(filePath)
-	ext := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, ext)
 
-	key := fmt.Sprintf("%s-%s%s", baseName, time.Now().Format(time.RFC3339Nano), ext)
-
-	return models.NewFile(fileName, filePath, key)
+	return models.NewFile(fileName, filePath, fileName)
 }
 
 func (s *Sender) notifyPublishedFile(ctx context.Context, file models.File) {

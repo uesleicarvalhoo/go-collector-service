@@ -19,11 +19,7 @@ type AppSettings struct {
 	TraceServiceName string `envconfig:"TRACE_SERVICE_NAME"`
 	TraceURL         string `envconfig:"TRACE_URL" default:"http://localhost:14268"`
 
-	EventTopic     string   `envconfig:"SENDER_EVENT_TOPIC" default:"collector.services"`
-	ParalelUploads int      `envconfig:"SENDER_PARALLEL_UPLOADS" default:"2"`
-	CollectDelay   int      `envconfig:"SENDER_COLLECT_DELAY" default:"5"`
-	MatchPatterns  []string `envconfig:"SENDER_MATCH_PATTERNS" required:"true" default:"upload/*.json"`
-
+	SenderConfig     SenderConfig
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
 	FileServerConfig FileServerConfig

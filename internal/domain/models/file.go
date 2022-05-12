@@ -29,18 +29,18 @@ func (f *File) validate() error {
 	validator := newValidator()
 
 	if strings.TrimSpace(f.Name) == "" {
-		validator.addError(ValidationErrorProps{Context: "file", Message: "fileName should be informed"})
+		validator.AddError(ValidationErrorProps{Context: "file", Message: "fileName should be informed"})
 	}
 
 	if strings.TrimSpace(f.FilePath) == "" {
-		validator.addError(ValidationErrorProps{Context: "file", Message: "filePath should be informed"})
+		validator.AddError(ValidationErrorProps{Context: "file", Message: "filePath should be informed"})
 	}
 
 	if strings.TrimSpace(f.Key) == "" {
-		validator.addError(ValidationErrorProps{Context: "file", Message: "fileKey should be informed"})
+		validator.AddError(ValidationErrorProps{Context: "file", Message: "fileKey should be informed"})
 	}
 
-	if validator.hasErrors() {
+	if validator.HasErrors() {
 		return validator.GetError()
 	}
 
