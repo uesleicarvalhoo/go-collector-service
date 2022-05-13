@@ -1,9 +1,9 @@
 package broker
 
 import (
-	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/schemas"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/schemas"
 )
 
 type (

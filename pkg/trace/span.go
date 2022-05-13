@@ -3,7 +3,7 @@ package trace
 import (
 	"context"
 
-	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

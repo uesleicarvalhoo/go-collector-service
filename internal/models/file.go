@@ -5,10 +5,9 @@ import (
 )
 
 type File struct {
-	Name       string
-	FilePath   string
-	FileServer string
-	Key        string
+	Name     string
+	FilePath string
+	Key      string
 }
 
 func NewFile(fileName, filePath string, fileKey string) (File, error) {

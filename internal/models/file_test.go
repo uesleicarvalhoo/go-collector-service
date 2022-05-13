@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
 )
 
 func TestNewFileShoudReturnErrWhenTopicIsInvalid(t *testing.T) {
@@ -63,11 +63,9 @@ func TestNewFileShouldReturnAllErrorMessages(t *testing.T) {
 	assert.NotNil(t, err)
 
 	// Assert
-	expectedMessage := "fileKey should be informed"
 	assert.Contains(t, err.Error(), "fileName should be informed")
 	assert.Contains(t, err.Error(), "filePath should be informed")
 	assert.Contains(t, err.Error(), "fileKey should be informed")
-	assert.Contains(t, err.Error(), expectedMessage)
 }
 
 func TestNewFileShouldReturnFileWhenAllFieldsAreOk(t *testing.T) {

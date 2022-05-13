@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/storage"

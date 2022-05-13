@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/domain/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
 )
 
 func TestNewEventShoudReturnErrWhenTopicIsInvalid(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/uesleicarvalhoo/go-collector-service/internal/infra/config"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"

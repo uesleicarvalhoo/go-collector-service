@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="xzW9w4tnsMkWc0-EfFGB" name="General">
-        <mxGraphModel dx="727" dy="609" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1047" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -129,13 +129,70 @@
             </root>
         </mxGraphModel>
     </diagram>
-    <diagram id="RDvgd4UyXQ2aDNxSHgwO" name="Collector">
-        <mxGraphModel dx="727" dy="609" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <diagram name="Collector" id="PYRVzbf0cyE7yXQet1s9">
+        <mxGraphModel dx="1047" dy="782" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
-                <mxCell id="NjNz4klFLznVU9PgvilE-0"/>
-                <mxCell id="NjNz4klFLznVU9PgvilE-1" parent="NjNz4klFLznVU9PgvilE-0"/>
-                <mxCell id="NjNz4klFLznVU9PgvilE-2" value="File" style="rounded=0;whiteSpace=wrap;html=1;" parent="NjNz4klFLznVU9PgvilE-1" vertex="1">
-                    <mxGeometry x="40" y="40" width="120" height="60" as="geometry"/>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-0"/>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-1" parent="7tcr4nle30jzqNTr1Fo6-0"/>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-9" value="Collector" style="rounded=1;whiteSpace=wrap;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="270" y="100" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-11" value="Storage" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="480" y="80" width="60" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-12" value="" style="endArrow=classic;html=1;entryX=0;entryY=0;entryDx=0;entryDy=45;entryPerimeter=0;" parent="7tcr4nle30jzqNTr1Fo6-1" source="7tcr4nle30jzqNTr1Fo6-9" target="7tcr4nle30jzqNTr1Fo6-11" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="980" y="640" as="sourcePoint"/>
+                        <mxPoint x="1080" y="640" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-13" value="File" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;" parent="7tcr4nle30jzqNTr1Fo6-12" connectable="0" vertex="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-15" value="" style="shape=link;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="7tcr4nle30jzqNTr1Fo6-1" source="7tcr4nle30jzqNTr1Fo6-9" target="7tcr4nle30jzqNTr1Fo6-16" edge="1">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="980" y="600" as="sourcePoint"/>
+                        <mxPoint x="1100" y="350" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-16" value="File Server" style="shape=datastore;whiteSpace=wrap;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="300" width="60" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-24" value="Published with Success" style="edgeStyle=orthogonalEdgeStyle;startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="7tcr4nle30jzqNTr1Fo6-1" source="7tcr4nle30jzqNTr1Fo6-9" target="7tcr4nle30jzqNTr1Fo6-27" edge="1">
+                    <mxGeometry x="0.6522" relative="1" as="geometry">
+                        <mxPoint x="330" y="270" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="330" y="200"/>
+                            <mxPoint x="220" y="200"/>
+                        </Array>
+                        <mxPoint x="330" y="500" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-35" style="edgeStyle=none;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" source="7tcr4nle30jzqNTr1Fo6-27" target="7tcr4nle30jzqNTr1Fo6-36" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="250" y="440" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-27" value="Send Broker Event with fileKey" style="rounded=0;whiteSpace=wrap;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="160" y="280" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-34" value="Send Broker Event with filePath" style="rounded=0;whiteSpace=wrap;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="430" y="280" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-36" value="Delete file from Fileserver" style="rounded=0;whiteSpace=wrap;html=1;" parent="7tcr4nle30jzqNTr1Fo6-1" vertex="1">
+                    <mxGeometry x="160" y="390" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7tcr4nle30jzqNTr1Fo6-37" value="Failed to publish" style="edgeStyle=orthogonalEdgeStyle;startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;entryX=0.575;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryPerimeter=0;" parent="7tcr4nle30jzqNTr1Fo6-1" source="7tcr4nle30jzqNTr1Fo6-9" target="7tcr4nle30jzqNTr1Fo6-34" edge="1">
+                    <mxGeometry x="0.7232" relative="1" as="geometry">
+                        <mxPoint x="340" y="170" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="330" y="200"/>
+                            <mxPoint x="499" y="200"/>
+                        </Array>
+                        <mxPoint x="260" y="310" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
                 </mxCell>
             </root>
         </mxGraphModel>
