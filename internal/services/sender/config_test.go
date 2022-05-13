@@ -4,62 +4,87 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
 )
 
-func TestValidateConfigShouldReturnErrorWhenParalelUploadsIsLowerThen1(t *testing.T) {
-	// Arrange
-	sut := Config{ParalelUploads: 0}
-
-	// Action
-	err := validateConfig(sut)
-
-	// Assert
-	expectedMessage := "'ParalelUploads' must be higher then 0"
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), expectedMessage)
-}
-
-func TestValidateConfigShouldReturnErrorWhenMatchPatternsIsEmpty(t *testing.T) {
+func TestValidateShouldReturnErrorWhenEventTopicIsInvalid(t *testing.T) {
 	// Arrange
 	sut := Config{
-		ParalelUploads: 1,
-		MatchPatterns:  []string{},
+		Workers: 1,
+		CollectorCfg: collector.Config{
+			MatchPatterns:       []string{"./files/*.json"},
+			MaxCollectBatchSize: 10,
+		},
 	}
 
 	// Action
-	err := validateConfig(sut)
-
-	// Assert
-	expectedMessage := "'MatchPatterns' must be have one or more patterns"
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), expectedMessage)
-}
-
-func TestValidateConfigShouldReturnErrorAllErrors(t *testing.T) {
-	// Arrange
-	sut := Config{
-		ParalelUploads: 0,
-		MatchPatterns:  []string{},
-	}
-
-	// Action
-	err := validateConfig(sut)
+	err := sut.Validate()
 
 	// Assert
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "'ParalelUploads' must be higher then 0")
-	assert.Contains(t, err.Error(), "'MatchPatterns' must be have one or more patterns")
+	assert.Contains(t, err.Error(), "eventTopic: field is required")
 }
 
-func TestValidateConfigShouldReturnNillWhenConfigIsValid(t *testing.T) {
+func TestValidateShouldReturnErrorWhenWorkersIsInvalid(t *testing.T) {
 	// Arrange
 	sut := Config{
-		ParalelUploads: 1,
-		MatchPatterns:  []string{"./test-files/*.json"},
+		CollectorCfg: collector.Config{
+			MatchPatterns:       []string{"./files/*.json"},
+			MaxCollectBatchSize: 10,
+		},
+		EventTopic: "event-topic",
 	}
 
 	// Action
-	err := validateConfig(sut)
+	err := sut.Validate()
+
+	// Assert
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "workers: must be higher then 0")
+}
+
+func TestValidateShouldReturnErrorWhenCollectorConfigIsInvalid(t *testing.T) {
+	// Arrange
+	sut := Config{
+		EventTopic: "event-topic",
+		Workers:    1,
+	}
+
+	// Action
+	err := sut.Validate()
+
+	// Assert
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "collector: ")
+}
+
+func TestValidateShouldReturnAllErrors(t *testing.T) {
+	// Arrange
+	sut := Config{}
+
+	// Action
+	err := sut.Validate()
+
+	// Assert
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "collector: ")
+	assert.Contains(t, err.Error(), "workers: must be higher then 0")
+	assert.Contains(t, err.Error(), "eventTopic: field is required")
+}
+
+func TestValidateShouldReturnNillWhenConfigIsValid(t *testing.T) {
+	// Arrange
+	sut := Config{
+		CollectorCfg: collector.Config{
+			MatchPatterns:       []string{"./files/*.json"},
+			MaxCollectBatchSize: 10,
+		},
+		EventTopic: "event-topic",
+		Workers:    1,
+	}
+
+	// Action
+	err := sut.Validate()
 
 	// Assert
 	assert.Nil(t, err)

@@ -4,13 +4,13 @@ import (
 	"context"
 	"io"
 
-	"github.com/sirupsen/logrus"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type NoneStorage struct{}
 
 func (ns *NoneStorage) SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) error {
-	logrus.Infof("File received, %+v", fileKey)
+	logger.Debugf("File received, %+v", fileKey)
 
 	return nil
 }

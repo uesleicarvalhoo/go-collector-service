@@ -53,23 +53,6 @@ func (svc *SQSClient) SendEvent(event Event) error {
 	return err
 }
 
-func (svc *SQSClient) DeclareTopic(payload CreateTopicInput) error {
-	queueAtributes := map[string]*string{}
-
-	for k, v := range payload.Attributes {
-		queueAtributes[k] = aws.String(v)
-	}
-
-	_, err := sqs.New(svc.session).CreateQueue(
-		&sqs.CreateQueueInput{
-			QueueName:  aws.String(payload.Name),
-			Attributes: queueAtributes,
-		},
-	)
-
-	return err
-}
-
 func (svc *SQSClient) getEventBody(data any) (*string, error) {
 	eventData, err := json.Marshal(data)
 	if err != nil {

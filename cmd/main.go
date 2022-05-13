@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
-	"github.com/uesleicarvalhoo/go-collector-service/internal/services/sender"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/dispatcher"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/broker"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
@@ -17,11 +17,12 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	cfg := config.LoadAppSettingsFromEnv()
+	cfg := config.Settings{}
+	if err := cfg.LoadFromEnv(); err != nil {
+		panic(err)
+	}
 
-	err := logger.InitLogger(cfg.LoggerConfig)
-	if err != nil {
+	if err := logger.InitLogger(cfg.LoggerConfig); err != nil {
 		panic(err)
 	}
 
@@ -31,17 +32,15 @@ func main() {
 		ServiceName:    cfg.TraceServiceName,
 		ServiceVersion: cfg.ServiceVersion,
 		Environment:    cfg.Env,
-		Disabled:       !cfg.TraceEnable,
+		Disabled:       !cfg.TraceEnabled,
 	})
 	if err != nil {
 		logger.Fatal(err)
 	}
-	defer provider.Close(ctx)
+	defer provider.Close(context.Background())
 
 	// Broker
-	brokerService, err := broker.NewRabbitMqClient(
-		cfg.BrokerConfig, broker.CreateTopicInput{Name: cfg.BrokerConfig.EventTopic},
-	)
+	brokerService, err := broker.NewRabbitMqClient(cfg.BrokerConfig)
 	if err != nil {
 		panic(err)
 	}
@@ -51,23 +50,28 @@ func main() {
 	storage := storage.NewS3Storage(cfg.StorageConfig, cfg.AwsRegion)
 
 	// FileSerrver
-	fileServer, err := fileserver.NewSFTP(cfg.FileServerConfig)
+	fileServer, err := fileserver.NewLocalFileServer(cfg.FileServerConfig)
 	if err != nil {
 		panic(err)
 	}
 
 	// Run service
-	senderService, err := sender.New(cfg.SenderConfig, storage, brokerService, fileServer)
+	var dispatcherCfg dispatcher.Config
+	if err := dispatcherCfg.LoadFromYaml("./config.yaml"); err != nil {
+		panic(err)
+	}
+
+	dispatcher, err := dispatcher.New(dispatcherCfg, storage, fileServer, brokerService)
 	if err != nil {
 		panic(err)
 	}
 
-	go senderService.Start()
+	dispatcher.Start()
 
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-quit
-	senderService.Shutdown()
+	dispatcher.Stop()
 }

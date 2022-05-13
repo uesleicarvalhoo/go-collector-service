@@ -5,16 +5,22 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/zbiljic/go-filelock"
 )
 
 type LocalFileServer struct {
-	config Config
+	sync.Mutex
+	config      Config
+	lockedFiles map[string]filelock.TryLockerSafe
 }
 
 func NewLocalFileServer(cfg Config) (*LocalFileServer, error) {
-	return &LocalFileServer{config: cfg}, nil
+	return &LocalFileServer{
+		config:      cfg,
+		lockedFiles: make(map[string]filelock.TryLockerSafe),
+	}, nil
 }
 
 func (fs *LocalFileServer) Glob(ctx context.Context, pattern string) ([]string, error) {
@@ -27,7 +33,12 @@ func (fs *LocalFileServer) Glob(ctx context.Context, pattern string) ([]string, 
 
 	for _, match := range matchs {
 		if f, _ := os.Stat(match); !f.IsDir() {
-			files = append(files, match)
+			absFilePath, err := filepath.Abs(match)
+			if err != nil {
+				return nil, err
+			}
+
+			files = append(files, absFilePath)
 		}
 	}
 
@@ -42,7 +53,7 @@ func (fs *LocalFileServer) Remove(ctx context.Context, filePath string) error {
 	return os.Remove(filePath)
 }
 
-func (fs *LocalFileServer) MoveFile(ctx context.Context, oldname, newname string) error {
+func (fs *LocalFileServer) Move(ctx context.Context, oldname, newname string) error {
 	dirName, _ := filepath.Split(newname)
 	if err := os.MkdirAll(dirName, os.ModePerm); err != nil {
 		return err
@@ -51,7 +62,11 @@ func (fs *LocalFileServer) MoveFile(ctx context.Context, oldname, newname string
 	return os.Rename(oldname, newname)
 }
 
-func (fs *LocalFileServer) Lock(ctx context.Context, filePath string) (LockerInterface, error) {
+func (fs *LocalFileServer) AcquireLock(ctx context.Context, filePath string) (Locker, error) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return nil, err
+	}
+
 	locker, err := filelock.New(filePath)
 	if err != nil {
 		return nil, err
