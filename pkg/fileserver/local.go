@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/zbiljic/go-filelock"
 )
 
 type LocalFileServer struct {
@@ -20,7 +22,7 @@ func (fs *LocalFileServer) Glob(ctx context.Context, pattern string) ([]string, 
 
 	matchs, err := filepath.Glob(pattern)
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 
 	for _, match := range matchs {
@@ -47,4 +49,22 @@ func (fs *LocalFileServer) MoveFile(ctx context.Context, oldname, newname string
 	}
 
 	return os.Rename(oldname, newname)
+}
+
+func (fs *LocalFileServer) Lock(ctx context.Context, filePath string) (LockerInterface, error) {
+	locker, err := filelock.New(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	success, err := locker.TryLock()
+	if err != nil {
+		return nil, err
+	}
+
+	if !success {
+		return nil, filelock.ErrLocked
+	}
+
+	return locker, nil
 }

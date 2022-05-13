@@ -11,6 +11,12 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+type noneLocker struct{}
+
+func (n noneLocker) Unlock() error {
+	return nil
+}
+
 type SFTPFileServer struct {
 	config       Config
 	KeyExchanges []string
@@ -83,6 +89,10 @@ func (fs *SFTPFileServer) MoveFile(ctx context.Context, oldname, newname string)
 	}
 
 	return fs.sftpClient.Rename(oldname, newname)
+}
+
+func (fs *SFTPFileServer) Lock(ctx context.Context, filePath string) (LockerInterface, error) {
+	return noneLocker{}, nil
 }
 
 func (fs *SFTPFileServer) connect() error {
