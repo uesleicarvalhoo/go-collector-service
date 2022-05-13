@@ -17,10 +17,13 @@ import (
 )
 
 func main() {
-	logger.Initialize()
-
 	ctx := context.Background()
 	cfg := config.LoadAppSettingsFromEnv()
+
+	err := logger.InitLogger(cfg.LoggerConfig)
+	if err != nil {
+		panic(err)
+	}
 
 	// Tracer
 	provider, err := trace.NewProvider(trace.ProviderConfig{

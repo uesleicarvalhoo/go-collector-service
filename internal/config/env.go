@@ -1,11 +1,11 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
 type AppSettings struct {
@@ -24,20 +24,19 @@ type AppSettings struct {
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
 	FileServerConfig FileServerConfig
+	LoggerConfig     LoggerConfig
 }
 
 func LoadAppSettingsFromEnv() AppSettings {
 	var cfg AppSettings
 
-	err := godotenv.Load()
-	if err != nil {
-		logger.Infof("Couldn't be load env from .env file: %s", err)
+	err := godotenv.Load(os.Getenv("ENVFILE_PATH"))
+	if err != nil && !os.IsNotExist(err) {
+		panic(err)
 	}
 
 	err = envconfig.Process("", &cfg)
 	if err != nil {
-		logger.Fatal(err)
-
 		return AppSettings{}
 	}
 
