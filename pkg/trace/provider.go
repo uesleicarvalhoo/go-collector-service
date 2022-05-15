@@ -26,6 +26,8 @@ type Provider struct {
 }
 
 func NewProvider(config ProviderConfig) (Provider, error) {
+	setServiceName(config.ServiceName)
+
 	if config.Disabled {
 		return Provider{Provider: trace.NewNoopTracerProvider()}, nil
 	}

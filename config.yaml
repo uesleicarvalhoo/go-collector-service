@@ -1,0 +1,14 @@
+sender:
+  - collect:
+      pattern:
+        - ./data/*.json
+      maxFilesBatch: 5
+      delay: 1
+    workers: 1
+
+  - collect:
+      pattern:
+        - ./data/*.txt
+      maxFilesBatch: 1
+      delay: 3
+    workers: 2

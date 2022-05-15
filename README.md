@@ -23,7 +23,6 @@
 - [ ] Documentar o que o serviço vai fazer no README.md
 - [ ] Implementar o envio para o BlobStorage
 - [ ] Implementar testes para as dependencias externas
-- [ ] Refatorar o sender para quebrar a responsabilidade entre os serviços
 
 ### Licença
 

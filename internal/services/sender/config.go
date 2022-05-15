@@ -1,23 +1,34 @@
 package sender
 
 import (
-	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
+	"strings"
+
 	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
+	"github.com/uesleicarvalhoo/go-collector-service/internal/services/collector"
 )
 
-type Config = config.SenderConfig
+type Config struct {
+	// Broker topic name to send event with file process result
+	EventTopic string `yaml:"topic" json:"topic"`
 
-func validateConfig(cfg Config) error {
+	// Number of workers to publish file to storage
+	Workers      int              `yaml:"workers" json:"workers"`
+	CollectorCfg collector.Config `json:"collect" yaml:"collect"`
+}
+
+func (c Config) Validate() error {
 	validator := models.Validator{}
 
-	if cfg.ParalelUploads == 0 {
-		validator.AddError(models.ValidationErrorProps{Context: "config", Message: "'ParalelUploads' must be higher then 0"})
+	if strings.TrimSpace(c.EventTopic) == "" {
+		validator.AddError("eventTopic", "field is required")
 	}
 
-	if len(cfg.MatchPatterns) == 0 {
-		validator.AddError(
-			models.ValidationErrorProps{Context: "config", Message: "'MatchPatterns' must be have one or more patterns"},
-		)
+	if c.Workers == 0 {
+		validator.AddError("workers", "must be higher then 0")
+	}
+
+	if err := c.CollectorCfg.Validate(); err != nil {
+		validator.AddError("collector", err.Error())
 	}
 
 	if validator.HasErrors() {

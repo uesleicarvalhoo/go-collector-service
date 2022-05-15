@@ -28,8 +28,8 @@ func newValidator() Validator {
 	}
 }
 
-func (e *Validator) AddError(err ValidationErrorProps) {
-	e.errors = append(e.errors, err)
+func (e *Validator) AddError(context, message string) {
+	e.errors = append(e.errors, ValidationErrorProps{Context: context, Message: message})
 }
 
 func (e *Validator) HasErrors() bool {

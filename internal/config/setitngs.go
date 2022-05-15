@@ -8,7 +8,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-type AppSettings struct {
+type Settings struct {
 	ServiceName    string `envconfig:"SERVICE_NAME" default:"go-collector"`
 	ServiceVersion string `envconfig:"SERVICE_VERSION" default:"0.0.0"`
 	Env            string `envconfig:"ENVIRONMENT" default:"dev"`
@@ -20,29 +20,26 @@ type AppSettings struct {
 	TraceURL         string `envconfig:"TRACE_URL" default:"http://localhost:14268"`
 	TraceEnable      bool   `envconfig:"TRACE_ENABLE" defult:"false"`
 
-	SenderConfig     SenderConfig
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
 	FileServerConfig FileServerConfig
 	LoggerConfig     LoggerConfig
 }
 
-func LoadAppSettingsFromEnv() AppSettings {
-	var cfg AppSettings
-
+func (s *Settings) LoadFromEnv() error {
 	err := godotenv.Load(os.Getenv("ENVFILE_PATH"))
 	if err != nil && !os.IsNotExist(err) {
-		panic(err)
+		return err
 	}
 
-	err = envconfig.Process("", &cfg)
+	err = envconfig.Process("", s)
 	if err != nil {
-		return AppSettings{}
+		return err
 	}
 
-	if strings.TrimSpace(cfg.TraceServiceName) == "" {
-		cfg.TraceServiceName = cfg.ServiceName
+	if strings.TrimSpace(s.TraceServiceName) == "" {
+		s.TraceServiceName = s.ServiceName
 	}
 
-	return cfg
+	return nil
 }

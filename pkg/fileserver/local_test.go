@@ -22,19 +22,19 @@ func init() {
 	tmpDir = folder
 }
 
-func newSut() LocalFileServer {
+func newSut() *LocalFileServer {
 	collector, err := NewLocalFileServer(Config{})
 	if err != nil {
 		panic(err)
 	}
 
-	return *collector
+	return collector
 }
 
 func createTempFile(fileName string) (string, error) {
 	fp := filepath.Join(tmpDir, fileName)
 
-	err := ioutil.WriteFile(fp, []byte{}, fs.ModeAppend)
+	err := ioutil.WriteFile(fp, []byte{}, fs.ModePerm)
 	if err != nil {
 		return "", err
 	}
@@ -109,6 +109,19 @@ func TestGlobShouldReturnOnlyFiles(t *testing.T) {
 	assert.Truef(t, dirIsIgnored, "Directory '%s' is not ignored", ignoredDir)
 }
 
+func TestGlobShouldReturnOnlyAbsPath(t *testing.T) {
+	// Arrange
+	sut := newSut()
+
+	// Action
+	collectedFiles, err := sut.Glob(context.TODO(), "./*")
+	assert.Nil(t, err)
+
+	for _, file := range collectedFiles {
+		assert.True(t, filepath.IsAbs(file))
+	}
+}
+
 func TestRemoveFileDeleteFile(t *testing.T) {
 	// Prepare
 	sut := newSut()
@@ -150,7 +163,7 @@ func TestOpenReturnValidContentReader(t *testing.T) {
 	assert.Equal(t, []byte(fileData), data)
 }
 
-func TestMoveFileShouldCreateFolders(t *testing.T) {
+func TestMoveShouldCreateFolders(t *testing.T) {
 	// Arrange
 	sut := newSut()
 
@@ -162,10 +175,80 @@ func TestMoveFileShouldCreateFolders(t *testing.T) {
 
 	// Action
 	newpath := filepath.Join(dir, "sent", name)
-	err = sut.MoveFile(context.TODO(), file, newpath)
+	err = sut.Move(context.TODO(), file, newpath)
 	assert.Nil(t, err)
 
 	// Assert
 	assert.NoFileExists(t, file)
 	assert.FileExists(t, newpath)
+}
+
+func TestAcquireLockShouldSaveLockerToLockedFiles(t *testing.T) {
+	// Arrange
+	sut := newSut()
+
+	file, err := createTempFile("test_acquire_lock_should_save_locker_on_locked_files.txt")
+	assert.Nil(t, err)
+	assert.FileExists(t, file)
+
+	// Action
+	err = sut.AcquireLock(context.TODO(), file)
+	assert.Nil(t, err)
+
+	// Assert
+	_, ok := sut.lockedFiles[file]
+	assert.True(t, ok)
+}
+
+func TestAcquireLockShouldReturnErrorWhenTryLockLockedFile(t *testing.T) {
+	// Arrange
+	sut := newSut()
+
+	file, err := createTempFile("test_acquire_lock_should_return_error_when_try_lock_locked_file.txt")
+	assert.Nil(t, err)
+	assert.FileExists(t, file)
+
+	err = sut.AcquireLock(context.TODO(), file)
+	assert.Nil(t, err)
+
+	// Action
+	err = sut.AcquireLock(context.TODO(), file)
+
+	// Assert
+	assert.NotNil(t, err)
+}
+
+func TestReleaseLockShouldRemoveLockerFromLockedFiles(t *testing.T) {
+	// Arrange
+	sut := newSut()
+
+	file, err := createTempFile("test_acquire_lock_should_remove_locker_from_locked_files.txt")
+	assert.Nil(t, err)
+	assert.FileExists(t, file)
+
+	err = sut.AcquireLock(context.TODO(), file)
+	assert.Nil(t, err)
+
+	// Action
+	err = sut.ReleaseLock(context.TODO(), file)
+	assert.Nil(t, err)
+
+	// Assert
+	_, ok := sut.lockedFiles[file]
+	assert.False(t, ok)
+}
+
+func TestAcquireLockShouldReturnErrorWhenFileNoExists(t *testing.T) {
+	// Prepare
+	sut := newSut()
+
+	// Arrange
+	inexistingFile := "this_file_does_not_exist.txt"
+	assert.NoFileExists(t, inexistingFile)
+
+	// Action
+	err := sut.AcquireLock(context.TODO(), inexistingFile)
+
+	// Assert
+	assert.NotNil(t, err)
 }
