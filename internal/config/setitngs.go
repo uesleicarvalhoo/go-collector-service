@@ -27,7 +27,7 @@ type Settings struct {
 }
 
 func (s *Settings) LoadFromEnv() error {
-	err := godotenv.Load(os.Getenv("ENVFILE_PATH"))
+	err := godotenv.Load()
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}

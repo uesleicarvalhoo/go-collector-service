@@ -40,9 +40,7 @@ func main() {
 	defer provider.Close(context.Background())
 
 	// Broker
-	brokerService, err := broker.NewRabbitMqClient(
-		cfg.BrokerConfig, broker.CreateTopicInput{Name: cfg.BrokerConfig.EventTopic},
-	)
+	brokerService, err := broker.NewRabbitMqClient(cfg.BrokerConfig)
 	if err != nil {
 		panic(err)
 	}

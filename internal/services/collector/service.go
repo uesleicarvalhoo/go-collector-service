@@ -51,6 +51,8 @@ func (c *Collector) Start() {
 			case <-c.quit:
 				return
 			default:
+				start := time.Now()
+
 				for _, pattern := range c.cfg.MatchPatterns {
 					c.collectorWg.Add(1)
 
@@ -60,6 +62,8 @@ func (c *Collector) Start() {
 				time.Sleep(time.Second * time.Duration(c.cfg.CollectDelay))
 				c.collectorWg.Wait()
 				c.waitGroup.Wait()
+
+				logger.Infof("Collector[%d] collected files Took %s", c.ID, time.Since(start).String())
 			}
 		}
 	}()
