@@ -54,6 +54,8 @@ BROKER_URL=localhost
 BROKER_PORT=5672
 BROKER_USER=guest
 BROKER_PASSWORD=guest
+# Caso o arquivo seja enviado com sucesso, é enviado o evento "success"
+# Caso tenha algum problema, será enviado o evento "error"
 
 # Storage
 STORAGE_HOST=http://localhost.localstack.cloud:4566
@@ -104,7 +106,7 @@ sender:
       maxFilesBatch: 5  # Quantidade máxima de arquivos para enviar vez, caso seja 0 envia todos os arquivos
       delay: 1  # Tempo de espera em segundos entre uma coleta e outra
     workers: 1  # Quantidade de Workers para fazer o Upload dos arquivos para o Storage
-
+    topic: collector.files  # Nome do tópico que os eventos serão enviados, eles não são gerados pelo serviço
 ```
 
 ## 🎲 Rodando a aplicação

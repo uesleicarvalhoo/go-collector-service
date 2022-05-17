@@ -5,6 +5,7 @@ sender:
       maxFilesBatch: 5
       delay: 1
     workers: 1
+    topic: collector.files
 
   - collect:
       pattern:
@@ -12,3 +13,4 @@ sender:
       maxFilesBatch: 1
       delay: 3
     workers: 2
+    topic: collector.files

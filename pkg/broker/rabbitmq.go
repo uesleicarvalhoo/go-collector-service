@@ -23,7 +23,7 @@ type RabbitMQClient struct {
 	errChannel chan *amqp.Error
 }
 
-func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient, error) {
+func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
 	client := &RabbitMQClient{
 		cfg:        cfg,
 		errChannel: make(chan *amqp.Error, 1),
@@ -31,12 +31,6 @@ func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient,
 
 	if err := client.connect(); err != nil {
 		return nil, err
-	}
-
-	for _, topic := range topics {
-		if err := client.DeclareTopic(topic); err != nil {
-			return nil, err
-		}
 	}
 
 	return client, nil
@@ -81,22 +75,6 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 	}
 
 	return nil
-}
-
-func (mq *RabbitMQClient) DeclareTopic(payload CreateTopicInput) error {
-	channel, err := mq.connection.Channel()
-	if err != nil {
-		return err
-	}
-
-	defer channel.Close()
-
-	exchangeType, ok := payload.Attributes["type"]
-	if !ok {
-		exchangeType = "topic"
-	}
-
-	return channel.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
 }
 
 func (mq *RabbitMQClient) connect() error {
