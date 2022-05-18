@@ -52,14 +52,14 @@ func (p *Publisher) Start() {
 				err := p.processFile(context.Background(), file)
 				if err == nil {
 					p.notifyResult("success", map[string]string{"file_key": file.Key})
-					logger.Info("[Publisher %d] File %s uploaded with success", p.ID, file.FilePath)
+					logger.Infof("[Publisher %d] File %s uploaded with success", p.ID, file.FilePath)
 				} else {
 					p.notifyResult("error", map[string]string{"file_path": file.FilePath, "error": err.Error()})
 					logger.Errorf("[Publisher %d] Failed to upload file, %s", p.ID, err)
 				}
 
 			case <-p.quit:
-				logger.Info("[Publisher %d] Quit signal received, stopping worker..", p.ID)
+				logger.Infof("[Publisher %d] Quit signal received, stopping worker..", p.ID)
 
 				return
 			}

@@ -46,11 +46,11 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 		return err
 	}
 
-	logger.Infof("Event received, %+v", event)
+	logger.Debugf("Event received, %+v", event)
 
 	body, err := json.Marshal(event.Data)
 	if err != nil {
-		logger.Infof("Couldn't decode event data: %s", err)
+		logger.Errorf("Couldn't decode event data: %s", err)
 
 		return err
 	}
@@ -60,7 +60,7 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 	})
 	if err != nil {
 		if errors.Is(err, amqp.ErrClosed) {
-			logger.Infof("Connection error, retrying to send event %+v", event)
+			logger.Warningf("Connection error, retrying to send event %+v", event)
 
 			if retryErr := mq.SendEvent(event); retryErr != nil {
 				return retryErr
@@ -69,7 +69,7 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 			return nil
 		}
 
-		logger.Infof("Failed to publish event, %s", err)
+		logger.Errorf("Failed to publish event, %s", err)
 
 		return err
 	}
