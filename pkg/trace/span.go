@@ -3,15 +3,21 @@ package trace
 import (
 	"context"
 
-	"github.com/uesleicarvalhoo/go-collector-service/internal/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
+// Is set by NewProvider.
+var serviceName string // nolint:gochecknoglobals
+
+func setServiceName(name string) {
+	serviceName = name
+}
+
 func NewSpan(ctx context.Context, name string) (context.Context, trace.Span) {
-	return otel.Tracer(config.LoadAppSettingsFromEnv().TraceServiceName).Start(ctx, name)
+	return otel.Tracer(serviceName).Start(ctx, name)
 }
 
 func AddSpanTags(span trace.Span, tags map[string]string) {

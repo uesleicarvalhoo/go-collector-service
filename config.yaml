@@ -1,0 +1,15 @@
+sender:
+  - collect:
+      pattern:
+        - ./data/domain_1/*.json
+      maxFilesBatch: 0
+    delay: 1000
+    workers: 10
+    topic: collector.files
+  - collect:
+      pattern:
+        - ./data/domain_2/*.json
+      maxFilesBatch: 0
+    delay: 1000
+    workers: 1
+    topic: collector.files

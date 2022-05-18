@@ -21,7 +21,3 @@ func (n *NoneBroker) SendEvent(event Event) error {
 
 	return nil
 }
-
-func (n *NoneBroker) DeclareTopic(payload CreateTopicInput) error {
-	return nil
-}

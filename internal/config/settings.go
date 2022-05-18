@@ -1,14 +1,14 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/uesleicarvalhoo/go-collector-service/pkg/logger"
 )
 
-type AppSettings struct {
+type Settings struct {
 	ServiceName    string `envconfig:"SERVICE_NAME" default:"go-collector"`
 	ServiceVersion string `envconfig:"SERVICE_VERSION" default:"0.0.0"`
 	Env            string `envconfig:"ENVIRONMENT" default:"dev"`
@@ -18,32 +18,28 @@ type AppSettings struct {
 
 	TraceServiceName string `envconfig:"TRACE_SERVICE_NAME"`
 	TraceURL         string `envconfig:"TRACE_URL" default:"http://localhost:14268"`
-	TraceEnable      bool   `envconfig:"TRACE_ENABLE" defult:"false"`
+	TraceEnabled     bool   `envconfig:"TRACE_ENABLED" defult:"false"`
 
-	SenderConfig     SenderConfig
 	BrokerConfig     BrokerConfig
 	StorageConfig    StorageConfig
 	FileServerConfig FileServerConfig
+	LoggerConfig     LoggerConfig
 }
 
-func LoadAppSettingsFromEnv() AppSettings {
-	var cfg AppSettings
-
+func (s *Settings) LoadFromEnv() error {
 	err := godotenv.Load()
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	err = envconfig.Process("", s)
 	if err != nil {
-		logger.Infof("Couldn't be load env from .env file: %s", err)
+		return err
 	}
 
-	err = envconfig.Process("", &cfg)
-	if err != nil {
-		logger.Fatal(err)
-
-		return AppSettings{}
+	if strings.TrimSpace(s.TraceServiceName) == "" {
+		s.TraceServiceName = s.ServiceName
 	}
 
-	if strings.TrimSpace(cfg.TraceServiceName) == "" {
-		cfg.TraceServiceName = cfg.ServiceName
-	}
-
-	return cfg
+	return nil
 }

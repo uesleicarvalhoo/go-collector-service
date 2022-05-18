@@ -5,20 +5,46 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
+	"github.com/uesleicarvalhoo/go-collector-service/pkg/fileserver"
 )
+
+func newController() models.FileController {
+	server, err := fileserver.NewLocalFileServer(fileserver.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	return server
+}
+
+func TestNewFileShoudReturnErrWhenControllerIsNill(t *testing.T) {
+	// Arrange
+	fileName := "myfile.txt"
+	filePath := "somedir/filename.json"
+	fileKey := "my-file-key"
+
+	// Action
+	_, err := models.NewFile(fileName, filePath, fileKey, nil)
+	assert.NotNil(t, err)
+
+	// Assert
+	expectedMessage := "controller: controller is required"
+	assert.Contains(t, err.Error(), expectedMessage)
+}
 
 func TestNewFileShoudReturnErrWhenTopicIsInvalid(t *testing.T) {
 	// Arrange
 	fileName := ""
 	filePath := "somedir/filename.json"
 	fileKey := "my-file-key"
+	controller := newController()
 
 	// Action
-	_, err := models.NewFile(fileName, filePath, fileKey)
+	_, err := models.NewFile(fileName, filePath, fileKey, controller)
 	assert.NotNil(t, err)
 
 	// Assert
-	expectedMessage := "fileName should be informed"
+	expectedMessage := "name: field is required"
 	assert.Contains(t, err.Error(), expectedMessage)
 }
 
@@ -27,13 +53,14 @@ func TestNewFileShoudReturnErrWhenKeyIsInvalid(t *testing.T) {
 	fileName := "filename.txt"
 	filePath := ""
 	fileKey := "my-file-key"
+	controller := newController()
 
 	// Action
-	_, err := models.NewFile(fileName, filePath, fileKey)
+	_, err := models.NewFile(fileName, filePath, fileKey, controller)
 	assert.NotNil(t, err)
 
 	// Assert
-	expectedMessage := "filePath should be informed"
+	expectedMessage := "filepath: field is required"
 	assert.Contains(t, err.Error(), expectedMessage)
 }
 
@@ -42,13 +69,14 @@ func TestNewFileShoudReturnErrWhenFileKeyIsInvalid(t *testing.T) {
 	fileName := "filename.txt"
 	filePath := "somedir/filename.txt"
 	fileKey := ""
+	controller := newController()
 
 	// Action
-	_, err := models.NewFile(fileName, filePath, fileKey)
+	_, err := models.NewFile(fileName, filePath, fileKey, controller)
 	assert.NotNil(t, err)
 
 	// Assert
-	expectedMessage := "fileKey should be informed"
+	expectedMessage := "key: field is required"
 	assert.Contains(t, err.Error(), expectedMessage)
 }
 
@@ -57,15 +85,16 @@ func TestNewFileShouldReturnAllErrorMessages(t *testing.T) {
 	fileName := ""
 	filePath := ""
 	fileKey := ""
+	controller := newController()
 
 	// Action
-	_, err := models.NewFile(fileName, filePath, fileKey)
+	_, err := models.NewFile(fileName, filePath, fileKey, controller)
 	assert.NotNil(t, err)
 
 	// Assert
-	assert.Contains(t, err.Error(), "fileName should be informed")
-	assert.Contains(t, err.Error(), "filePath should be informed")
-	assert.Contains(t, err.Error(), "fileKey should be informed")
+	assert.Contains(t, err.Error(), "name: field is required")
+	assert.Contains(t, err.Error(), "filepath: field is required")
+	assert.Contains(t, err.Error(), "key: field is required")
 }
 
 func TestNewFileShouldReturnFileWhenAllFieldsAreOk(t *testing.T) {
@@ -73,9 +102,10 @@ func TestNewFileShouldReturnFileWhenAllFieldsAreOk(t *testing.T) {
 	fileName := "filename.json"
 	filePath := "test/filename.json"
 	fileKey := "my-file-key"
+	controller := newController()
 
 	// Action
-	_, err := models.NewFile(fileName, filePath, fileKey)
+	_, err := models.NewFile(fileName, filePath, fileKey, controller)
 
 	// Assert
 	assert.Nil(t, err)

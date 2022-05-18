@@ -31,12 +31,6 @@ lint:
 format:
 	@gofumpt -w -e -l $(GO_PACKAGES)
 
-## @ Create docs
-docs: cmd internal pkg
-	@swag init -g $(GO_ENTRYPOINT)
-	@swag fmt -g $(GO_ENTRYPOINT)
-
-
 ## @ Tests
 .PHONY: test coverage
 test:  ## Run tests of project

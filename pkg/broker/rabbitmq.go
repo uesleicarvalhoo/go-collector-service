@@ -23,7 +23,7 @@ type RabbitMQClient struct {
 	errChannel chan *amqp.Error
 }
 
-func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient, error) {
+func NewRabbitMqClient(cfg Config) (*RabbitMQClient, error) {
 	client := &RabbitMQClient{
 		cfg:        cfg,
 		errChannel: make(chan *amqp.Error, 1),
@@ -31,12 +31,6 @@ func NewRabbitMqClient(cfg Config, topics ...CreateTopicInput) (*RabbitMQClient,
 
 	if err := client.connect(); err != nil {
 		return nil, err
-	}
-
-	for _, topic := range topics {
-		if err := client.DeclareTopic(topic); err != nil {
-			return nil, err
-		}
 	}
 
 	return client, nil
@@ -52,11 +46,9 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 		return err
 	}
 
-	logger.Infof("Event received, %+v", event)
-
 	body, err := json.Marshal(event.Data)
 	if err != nil {
-		logger.Infof("Couldn't decode event data: %s", err)
+		logger.Errorf("Couldn't decode event data: %s", err)
 
 		return err
 	}
@@ -66,7 +58,7 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 	})
 	if err != nil {
 		if errors.Is(err, amqp.ErrClosed) {
-			logger.Infof("Connection error, retrying to send event %+v", event)
+			logger.Warningf("[RabbitMQ] Connection error, retrying to send event %+v", event)
 
 			if retryErr := mq.SendEvent(event); retryErr != nil {
 				return retryErr
@@ -75,28 +67,12 @@ func (mq *RabbitMQClient) SendEvent(event Event) error {
 			return nil
 		}
 
-		logger.Infof("Failed to publish event, %s", err)
+		logger.Errorf("Failed to publish event, %s", err)
 
 		return err
 	}
 
 	return nil
-}
-
-func (mq *RabbitMQClient) DeclareTopic(payload CreateTopicInput) error {
-	channel, err := mq.connection.Channel()
-	if err != nil {
-		return err
-	}
-
-	defer channel.Close()
-
-	exchangeType, ok := payload.Attributes["type"]
-	if !ok {
-		exchangeType = "topic"
-	}
-
-	return channel.ExchangeDeclare(payload.Name, exchangeType, true, false, false, false, amqp.Table{})
 }
 
 func (mq *RabbitMQClient) connect() error {
