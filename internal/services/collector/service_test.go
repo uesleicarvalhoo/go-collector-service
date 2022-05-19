@@ -33,7 +33,12 @@ func createTempFile(dir, fileName string) (models.File, error) {
 
 	server := newFileServer()
 
-	return models.NewFile(fileName, fp, fileName, server)
+	info, err := server.Stat(context.TODO(), fp)
+	if err != nil {
+		panic(err)
+	}
+
+	return models.NewFile(fileName, fp, fileName, info.Size(), info.ModTime(), server)
 }
 
 func newFileServer() services.FileServer {

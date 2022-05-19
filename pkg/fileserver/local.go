@@ -3,6 +3,7 @@ package fileserver
 import (
 	"context"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sync"
@@ -82,4 +83,8 @@ func (fs *LocalFileServer) AcquireLock(ctx context.Context, filePath string) (Lo
 	}
 
 	return locker, nil
+}
+
+func (fs *LocalFileServer) Stat(ctx context.Context, filepath string) (fs.FileInfo, error) {
+	return os.Stat(filepath)
 }

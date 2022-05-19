@@ -3,7 +3,6 @@ package collector
 import (
 	"context"
 	"fmt"
-	"path"
 	"strconv"
 	"sync"
 
@@ -84,7 +83,7 @@ func (c *Collector) collectFilesWithPattern(
 	}()
 
 	for _, fp := range collectedFiles {
-		model, err := c.createFileModel(fp)
+		model, err := c.createFileModel(ctx, fp)
 		if err != nil {
 			trace.AddSpanError(span, err)
 			trace.FailSpan(span, "Failed to create FileModel")
@@ -104,8 +103,11 @@ func (c *Collector) collectFilesWithPattern(
 }
 
 // Insert a timestamp at end of file name maintaining same file extension.
-func (c *Collector) createFileModel(filePath string) (models.File, error) {
-	fileName := path.Base(filePath)
+func (c *Collector) createFileModel(ctx context.Context, filePath string) (models.File, error) {
+	info, err := c.server.Stat(ctx, filePath)
+	if err != nil {
+		return models.File{}, err
+	}
 
-	return models.NewFile(fileName, filePath, fileName, c.server)
+	return models.NewFile(info.Name(), filePath, info.Name(), info.Size(), info.ModTime(), c.server)
 }
