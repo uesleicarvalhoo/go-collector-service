@@ -36,18 +36,18 @@ func NewBlobStorage(config Config) (*BlobStorage, error) {
 }
 
 func (svc *BlobStorage) SendFile(ctx context.Context, fileKey string, reader io.ReadSeeker) error {
-	fileUrl, err := url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", svc.user, svc.container, fileKey))
+	fileURL, err := url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", svc.user, svc.container, fileKey))
 	if err != nil {
 		return err
 	}
 
-	blobUrl := azblob.NewBlockBlobURL(*fileUrl, azblob.NewPipeline(svc.credentials, azblob.PipelineOptions{}))
+	blobURL := azblob.NewBlockBlobURL(*fileURL, azblob.NewPipeline(svc.credentials, azblob.PipelineOptions{}))
 	options := azblob.UploadStreamToBlockBlobOptions{
 		BufferSize: uploadBufferSize,
 		MaxBuffers: uploadMaxBuffers,
 	}
 
-	_, err = azblob.UploadStreamToBlockBlob(ctx, reader, blobUrl, options)
+	_, err = azblob.UploadStreamToBlockBlob(ctx, reader, blobURL, options)
 	if err != nil {
 		return err
 	}
