@@ -6,6 +6,7 @@ require github.com/streadway/amqp v1.0.0
 
 require (
 	github.com/aws/aws-sdk-go v1.43.41
+	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
