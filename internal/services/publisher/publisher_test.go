@@ -32,7 +32,7 @@ func createTempFile(dir, fileName string) (models.File, error) {
 
 	fp := filepath.Join(dir, fileName)
 
-	err = ioutil.WriteFile(fp, []byte{}, fs.ModePerm)
+	err = ioutil.WriteFile(fp, []byte{123}, fs.ModePerm)
 	if err != nil {
 		panic(err)
 	}
@@ -88,7 +88,8 @@ func TestProcessFileSendFileToStorage(t *testing.T) {
 
 	// Action
 	sut.waitGroup.Add(1)
-	sut.processFile(context.TODO(), testFile1)
+	err = sut.processFile(context.TODO(), testFile1)
+	assert.Nil(t, err)
 
 	// Assert
 	storedFiles := memoryStorage.GetAllFiles()
@@ -118,6 +119,30 @@ func TestProcessFileShouldReturnErrorWhenFileNoExists(t *testing.T) {
 	// Assert
 	sut.waitGroup.Wait()
 	assert.NotNil(t, err)
+}
+
+func TestProcessFileShouldReturnErrWhenFileSizeIs0(t *testing.T) {
+	// Prepare
+	folder, err := ioutil.TempDir("", "*")
+	if err != nil {
+		panic(err)
+	}
+
+	sut := newSut()
+
+	// Arrange
+	testFile1, err := createTempFile(folder, "test_file_1.json")
+	assert.Nil(t, err)
+	assert.FileExists(t, testFile1.FilePath)
+
+	testFile1.Size = 0
+
+	// Action
+	sut.waitGroup.Add(1)
+	err = sut.processFile(context.TODO(), testFile1)
+
+	// Assert
+	assert.ErrorIs(t, ErrEmptyFile, err)
 }
 
 func TestHandleConsumeFiles(t *testing.T) {

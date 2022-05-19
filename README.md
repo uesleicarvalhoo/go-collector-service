@@ -25,7 +25,7 @@ A ideia do projeto como um todo é criar um serviço de ETL como descrito abaixo
 
 ![diagrama do projeto](diagram.drawio.png)
 
-# Collector
+## Collector
 
 O collector é o serviço que é responsavél por coletar os arquivos de uma fonte, envia-los para um storage e disparar um evento para um message broker indicando que o arquivo está pendente e disponível para ser processado.
 A aplicação também conta com o Jaeger para colectar metricas de opentelemetry, para habilitar é só exportar a variavel de ambiente `TRACE_ENABLE=true`
@@ -61,6 +61,8 @@ BROKER_PASSWORD=guest
 # Storage
 STORAGE_HOST=http://localhost.localstack.cloud:4566
 STORAGE_BUCKET=collector-files
+STORAGE_USER=username
+STORAGE_KEY=acesskey
 
 # Logger
 # Por default, o log no console é habilitado, caso queira desabilitar é só exportar a variavel de ambiente

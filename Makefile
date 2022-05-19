@@ -12,7 +12,7 @@ help: ## Display this help
 
 
 ## @ Application
-.PHONY: run setup setdown
+.PHONY: run setup setdown build
 run: ## Start application
 	@go run $(GO_ENTRYPOINT)
 
@@ -22,6 +22,17 @@ setup: ## Start app dependencies
 setdown:  ## Stop application dependencies
 	@docker-compose down
 
+build: ## Build application
+	@GOOS=windows GOARCH=amd64 go build -o dist/sender-windows.exe cmd/main.go
+	@GOOS=aix GOARCH=ppc64 go build -o dist/sender-aix cmd/main.go
+
+dist/sender-windows.exe: $(wildcards /cmd/*.go /*/**/*.go go.mod go.sum) ## Build application from AIX
+	@echo Building sender to windows/amd64
+	@GOOS=windows GOARCH=amd64 go build -o sender-aix cmd/main.go
+
+dist/sender-aix: ## Build application from Windows
+	@echo Building sender to aix/ppc64
+	@GOOS=aix GOARCH=ppc64 go build -o sender-aix cmd/main.go
 
 ## @ Linter
 .PHONY: lint format

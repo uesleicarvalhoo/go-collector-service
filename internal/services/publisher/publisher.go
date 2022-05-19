@@ -78,6 +78,10 @@ func (p *Publisher) processFile(ctx context.Context, file models.File) error {
 		return err
 	}
 
+	if file.Size == 0 {
+		return ErrEmptyFile
+	}
+
 	err = p.publishFile(ctx, file)
 	if err != nil {
 		logger.Errorf("[Publisher %d] Error on publish file '%s': '%s'", p.ID, file.FilePath, err)
