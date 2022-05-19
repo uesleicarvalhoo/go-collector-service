@@ -37,7 +37,12 @@ func createTempFile(dir, fileName string) (models.File, error) {
 		panic(err)
 	}
 
-	return models.NewFile(fileName, fp, fileName, server)
+	info, err := os.Stat(fp)
+	if err != nil {
+		panic(err)
+	}
+
+	return models.NewFile(fileName, fp, fileName, info.Size(), info.ModTime(), server)
 }
 
 func newSut() *Publisher {

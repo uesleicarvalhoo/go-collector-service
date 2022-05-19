@@ -3,6 +3,7 @@ package publisher
 import (
 	"context"
 	"path"
+	"strconv"
 	"sync"
 
 	"github.com/uesleicarvalhoo/go-collector-service/internal/models"
@@ -40,10 +41,10 @@ func (p *Publisher) Handle(ctx context.Context, fileChannel chan models.File) {
 		for file := range fileChannel {
 			err := p.processFile(ctx, file)
 			if err == nil {
-				logger.Infof("[Publisher %d] File %s uploaded with success", p.ID, file.Key)
+				logger.Infof("[Publisher %d] File %+v uploaded with success", p.ID, file.FileInfo)
 				p.notifyResult("success", map[string]string{"file_key": file.Key})
 			} else {
-				logger.Errorf("[Publisher %d] Failed to upload file '%s', %s", p.ID, file.Key, err)
+				logger.Errorf("[Publisher %d] Failed to upload file '%+v', %s", p.ID, file.FileInfo, err)
 				p.notifyResult("error", map[string]string{"file_path": file.FilePath, "error": err.Error()})
 			}
 		}
@@ -59,9 +60,11 @@ func (p *Publisher) processFile(ctx context.Context, file models.File) error {
 	trace.AddSpanTags(
 		span,
 		map[string]string{
-			"fileKey":   file.Key,
-			"fileName:": file.Name,
-			"filePath:": file.FilePath,
+			"fileKey":     file.Key,
+			"fileName:":   file.Name,
+			"filePath:":   file.FilePath,
+			"fileSize":    strconv.Itoa(int(file.Size)),
+			"fileModTime": file.ModTime.Format("2006-01-02 15:04:05"),
 		},
 	)
 
@@ -118,14 +121,11 @@ func (p *Publisher) publishFile(ctx context.Context, file models.File) error {
 	return nil
 }
 
-// Move file to ./send<filename><timestamp><fileextension>.
+// Move file to ./sent/<filename>.
 func (p *Publisher) moveFile(ctx context.Context, file models.File) {
 	span := trace.SpanFromContext(ctx)
 
 	fileDir, fileName := path.Split(file.FilePath)
-	// ext := path.Ext(name)
-	// baseName := strings.TrimSuffix(file.Name, ext)
-	// newName := fmt.Sprintf("%s-%s%s", baseName, time.Now().Format(time.RFC3339Nano), ext)
 	newPath := path.Join(fileDir, "sent", fileName)
 
 	trace.AddSpanEvents(

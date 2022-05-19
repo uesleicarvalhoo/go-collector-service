@@ -11,5 +11,5 @@ sender:
         - ./data/domain_2/*.json
       maxFilesBatch: 0
     delay: 1000
-    workers: 1
+    workers: 10
     topic: collector.files

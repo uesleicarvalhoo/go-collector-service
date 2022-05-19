@@ -3,6 +3,7 @@ package fileserver
 import (
 	"context"
 	"io"
+	"io/fs"
 	"net"
 	"path/filepath"
 
@@ -83,6 +84,14 @@ func (fs *SFTPFileServer) Move(ctx context.Context, oldname, newname string) err
 	}
 
 	return fs.sftpClient.Rename(oldname, newname)
+}
+
+func (fs *SFTPFileServer) Stat(ctx context.Context, filePath string) (fs.FileInfo, error) {
+	if err := fs.connect(); err != nil {
+		return nil, err
+	}
+
+	return fs.sftpClient.Stat(filePath)
 }
 
 func (fs *SFTPFileServer) Lock(ctx context.Context, filePath string) error {

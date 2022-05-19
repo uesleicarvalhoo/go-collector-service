@@ -2,36 +2,36 @@ package models
 
 import (
 	"context"
-	"errors"
 	"io"
 	"strings"
+	"time"
 )
 
-var ErrFileIsNotLocked = errors.New("file is not locked")
-
-type Locker interface {
-	Unlock() error
+type FileInfo struct {
+	Name     string
+	FilePath string
+	Key      string
+	Size     int64
+	ModTime  time.Time
 }
 
 type File struct {
-	Name       string
-	FilePath   string
-	Key        string
+	FileInfo
 	locker     Locker
 	controller FileController
 }
 
-type FileController interface {
-	Open(ctx context.Context, filepath string) (io.ReadSeekCloser, error)
-	Move(ctx context.Context, oldpath string, newpath string) error
-	AcquireLock(ctx context.Context, filepath string) (Locker, error)
-}
-
-func NewFile(fileName, filePath string, fileKey string, controller FileController) (File, error) {
+func NewFile(
+	fileName, filePath, fileKey string, size int64, modTime time.Time, controller FileController,
+) (File, error) {
 	file := File{
-		Name:       fileName,
-		FilePath:   filePath,
-		Key:        fileKey,
+		FileInfo: FileInfo{
+			Name:     fileName,
+			FilePath: filePath,
+			Key:      fileKey,
+			Size:     size,
+			ModTime:  modTime,
+		},
 		controller: controller,
 	}
 
