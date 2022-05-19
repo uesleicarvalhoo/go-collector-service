@@ -8,19 +8,17 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/zbiljic/go-filelock"
+	"github.com/gofrs/flock"
 )
 
 type LocalFileServer struct {
 	sync.Mutex
-	config      Config
-	lockedFiles map[string]filelock.TryLockerSafe
+	config Config
 }
 
 func NewLocalFileServer(cfg Config) (*LocalFileServer, error) {
 	return &LocalFileServer{
-		config:      cfg,
-		lockedFiles: make(map[string]filelock.TryLockerSafe),
+		config: cfg,
 	}, nil
 }
 
@@ -68,18 +66,10 @@ func (fs *LocalFileServer) AcquireLock(ctx context.Context, filePath string) (Lo
 		return nil, err
 	}
 
-	locker, err := filelock.New(filePath)
-	if err != nil {
-		return nil, err
-	}
+	locker := flock.New(filePath)
 
-	success, err := locker.TryLock()
-	if err != nil {
+	if _, err := locker.TryLock(); err != nil {
 		return nil, err
-	}
-
-	if !success {
-		return nil, filelock.ErrLocked
 	}
 
 	return locker, nil
